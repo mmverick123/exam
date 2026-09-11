@@ -12,8 +12,8 @@ importers:
         specifier: ^0.63.0
         version: 0.63.0(zod@3.25.76)
       '@exam/lowcode':
-        specifier: 0.1.0
-        version: 0.1.0
+        specifier: npm:@mmverick123/lowcode@0.1.0
+        version: '@mmverick123/lowcode@0.1.0'
       fastify:
         specifier: ^5.6.1
         version: 5.12.3
@@ -255,27 +255,6 @@ packages:
     resolution: {integrity: sha512-43/qtrDUokr7LJqoF2c3+RInu/t4zfrpYdoSDfYyhg52rwLV6TnOvdG4fXm7IkSB3wErkcmJS9iEhjVtOSEjjA==}
     engines: {node: ^18.18.0 || ^20.9.0 || >=21.1.0}
 
-  '@exam/lowcode@0.1.0':
-    resolution: {integrity: sha512-E6OfUzmFVb4JUNZTTcGFsO1B/maX+vCZrJb2C2YqI3aboanM89CD4Es1iBf8rMy5U+ws3+4xkvzb93zuD7ZK4g==}
-    engines: {node: '>=22'}
-    peerDependencies:
-      '@dnd-kit/core': ^6.3.1
-      dompurify: ^3.2.6
-      react: ^19.1.1
-      react-dom: ^19.1.1
-      zustand: ^5.0.8
-    peerDependenciesMeta:
-      '@dnd-kit/core':
-        optional: true
-      dompurify:
-        optional: true
-      react:
-        optional: true
-      react-dom:
-        optional: true
-      zustand:
-        optional: true
-
   '@fastify/ajv-compiler@4.0.6':
     resolution: {integrity: sha512-NtuzM0SfaMJbGlnjr9LWQUN5LzgSrbB8tf/wRZNas+4E1O/Nmzl53e7ruT61HDZyRCJGC6FxIogmNZO1c5ETBA==}
 
@@ -320,6 +299,27 @@ packages:
 
   '@jridgewell/sourcemap-codec@1.6.0':
     resolution: {integrity: sha512-T7jf+5zgsZHwNJ4lvQ7/aezbyk0nNX+zJVWpmHA7VYsEx7a7qr5Rg5IbtJFqkgze5Y2sruq1RUY8Q837Od7iFw==}
+
+  '@mmverick123/lowcode@0.1.0':
+    resolution: {integrity: sha512-tLJMc6E/CSb3a1OHxK0pMbggmOYwxkOi1rEZ54Vr89BNscSb9hNc1vENHNNM8ym23oA0MDoJy0UCqAHfax7Afg==}
+    engines: {node: '>=22'}
+    peerDependencies:
+      '@dnd-kit/core': ^6.3.1
+      dompurify: ^3.2.6
+      react: ^19.1.1
+      react-dom: ^19.1.1
+      zustand: ^5.0.8
+    peerDependenciesMeta:
+      '@dnd-kit/core':
+        optional: true
+      dompurify:
+        optional: true
+      react:
+        optional: true
+      react-dom:
+        optional: true
+      zustand:
+        optional: true
 
   '@napi-rs/lzma-linux-x64-gnu@1.5.1':
     resolution: {integrity: sha512-oTXEIha4SsuXdTA4Iyskj0kpdx2yVXdhd75c2v3xGrHFfVMsbhTPZU/nMPL4sWKo4pBHm3aucLaqGlF696dTyQ==}
@@ -1482,10 +1482,6 @@ snapshots:
       '@eslint/core': 0.17.0
       levn: 0.4.1
 
-  '@exam/lowcode@0.1.0':
-    dependencies:
-      ajv: 8.20.0
-
   '@fastify/ajv-compiler@4.0.6':
     dependencies:
       ajv: 8.20.0
@@ -1535,6 +1531,10 @@ snapshots:
       wrap-ansi-cjs: wrap-ansi@7.0.0
 
   '@jridgewell/sourcemap-codec@1.6.0': {}
+
+  '@mmverick123/lowcode@0.1.0':
+    dependencies:
+      ajv: 8.20.0
 
   '@napi-rs/lzma-linux-x64-gnu@1.5.1':
     optional: true
