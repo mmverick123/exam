@@ -1,2 +1,2 @@
-@exam:registry=https://packages.aliyun.com/<your-project>/npm/<your-repository>/
-//packages.aliyun.com/:_authToken=<your-aliyun-access-token>
+@mmverick123:registry=https://npm.pkg.github.com/
+//npm.pkg.github.com/:_authToken=<your-github-packages-token>

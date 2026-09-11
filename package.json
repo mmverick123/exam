@@ -1,5 +1,5 @@
 {
-  "name": "@exam/lowcode",
+  "name": "@mmverick123/lowcode",
   "version": "0.1.0",
   "description": "Schema-driven question composition contract, renderer, and designer",
   "type": "module",
@@ -10,7 +10,8 @@
     "README.md"
   ],
   "publishConfig": {
-    "access": "restricted"
+    "access": "restricted",
+    "registry": "https://npm.pkg.github.com/"
   },
   "exports": {
     "./contract": {
