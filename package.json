@@ -1,0 +1,81 @@
+{
+  "name": "@exam/lowcode",
+  "version": "0.1.0",
+  "description": "Schema-driven question composition contract, renderer, and designer",
+  "type": "module",
+  "sideEffects": false,
+  "files": [
+    "dist",
+    "contract",
+    "README.md"
+  ],
+  "publishConfig": {
+    "access": "restricted"
+  },
+  "exports": {
+    "./contract": {
+      "types": "./dist/contract.d.ts",
+      "import": "./dist/contract.js"
+    },
+    "./renderer": {
+      "types": "./dist/renderer.d.ts",
+      "import": "./dist/renderer.js"
+    },
+    "./designer": {
+      "types": "./dist/designer.d.ts",
+      "import": "./dist/designer.js"
+    },
+    "./contract/widgets.json": "./contract/widgets.json",
+    "./contract/schema.json": "./contract/schema.json",
+    "./contract/version.json": "./contract/version.json"
+  },
+  "scripts": {
+    "lint": "eslint .",
+    "typecheck": "tsc --noEmit",
+    "test": "vitest run",
+    "contract:generate": "tsx scripts/generate-contract.ts",
+    "contract:snapshot:update": "tsx scripts/update-contract-snapshot.ts",
+    "contract:check": "tsx scripts/check-contract-snapshot.ts",
+    "build": "tsup",
+    "boundaries:check": "tsx scripts/check-build-boundaries.ts",
+    "widget-layout:check": "tsx scripts/check-widget-source-layout.ts",
+    "verify": "pnpm lint && pnpm typecheck && pnpm widget-layout:check && pnpm contract:generate && pnpm test && pnpm contract:check && pnpm build && pnpm boundaries:check",
+    "pack:local": "pnpm verify && pnpm pack --pack-destination dist",
+    "prepublishOnly": "pnpm verify",
+    "release:npm": "pnpm publish --no-git-checks"
+  },
+  "dependencies": {
+    "ajv": "^8.17.1"
+  },
+  "peerDependencies": {
+    "@dnd-kit/core": "^6.3.1",
+    "dompurify": "^3.2.6",
+    "react": "^19.1.1",
+    "react-dom": "^19.1.1",
+    "zustand": "^5.0.8"
+  },
+  "peerDependenciesMeta": {
+    "@dnd-kit/core": { "optional": true },
+    "dompurify": { "optional": true },
+    "react": { "optional": true },
+    "react-dom": { "optional": true },
+    "zustand": { "optional": true }
+  },
+  "devDependencies": {
+    "@types/node": "^24.3.1",
+    "@types/react": "^19.1.12",
+    "@types/react-dom": "^19.1.9",
+    "@typescript-eslint/eslint-plugin": "^8.43.0",
+    "@typescript-eslint/parser": "^8.43.0",
+    "eslint": "^9.35.0",
+    "eslint-plugin-boundaries": "^5.0.1",
+    "tsup": "^8.5.0",
+    "tsx": "^4.20.5",
+    "typescript": "^5.9.2",
+    "vitest": "^3.2.4"
+  },
+  "engines": {
+    "node": ">=22"
+  },
+  "packageManager": "pnpm@11.19.0"
+}

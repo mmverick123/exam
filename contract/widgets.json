@@ -1,0 +1,179 @@
+{
+  "contractVersion": "1.0.0",
+  "widgets": [
+    {
+      "type": "page",
+      "displayName": "页面",
+      "aiHint": "题型唯一根容器，由系统创建，不允许 Agent 生成。",
+      "componentType": "CONTAINER",
+      "allowedChildTypes": [
+        "question-group",
+        "stem",
+        "image",
+        "divider",
+        "single-choice",
+        "multi-choice",
+        "judge",
+        "fill-blank",
+        "essay"
+      ],
+      "internal": true,
+      "agentExcluded": true,
+      "defaultOptions": {}
+    },
+    {
+      "type": "question-group",
+      "displayName": "组合题",
+      "aiHint": "承载材料与多个子问；不可嵌套另一个组合题。",
+      "componentType": "CONTAINER",
+      "allowedChildTypes": [
+        "stem",
+        "image",
+        "divider",
+        "single-choice",
+        "multi-choice",
+        "judge",
+        "fill-blank",
+        "essay"
+      ],
+      "defaultOptions": {
+        "title": "",
+        "showIndex": true,
+        "gap": 16
+      }
+    },
+    {
+      "type": "stem",
+      "displayName": "题干",
+      "aiHint": "题干或材料正文，content 为经过白名单消毒的 HTML。",
+      "componentType": "DISPLAY_COMPONENT",
+      "defaultOptions": {
+        "title": "",
+        "content": "<p></p>",
+        "align": "left"
+      }
+    },
+    {
+      "type": "image",
+      "displayName": "图片",
+      "aiHint": "人工配置的 HTTPS 外链图片，Agent 不得生成。",
+      "componentType": "DISPLAY_COMPONENT",
+      "agentExcluded": true,
+      "defaultOptions": {
+        "title": "",
+        "src": "",
+        "alt": "",
+        "width": 100,
+        "align": "center"
+      }
+    },
+    {
+      "type": "divider",
+      "displayName": "分割线",
+      "aiHint": "用于分隔题目内容，可通过 title 显示居中文字。",
+      "componentType": "DISPLAY_COMPONENT",
+      "defaultOptions": {
+        "title": "",
+        "dashed": false,
+        "marginY": 12
+      }
+    },
+    {
+      "type": "single-choice",
+      "displayName": "单选题",
+      "aiHint": "考生只能选择一个选项；optionItems 的 value 是不可变标识。",
+      "componentType": "ANSWER_COMPONENT",
+      "answerType": "string",
+      "designOnlyOptionKeys": [
+        "correctAnswer"
+      ],
+      "defaultOptions": {
+        "title": "",
+        "name": "single_choice",
+        "score": 0,
+        "defaultValue": null,
+        "labelPosition": "inherit",
+        "optionItems": [],
+        "optionsLayout": "vertical"
+      }
+    },
+    {
+      "type": "multi-choice",
+      "displayName": "多选题",
+      "aiHint": "考生可选择多个选项；optionItems 的 value 是不可变标识。",
+      "componentType": "ANSWER_COMPONENT",
+      "answerType": "string[]",
+      "designOnlyOptionKeys": [
+        "correctAnswer"
+      ],
+      "defaultOptions": {
+        "title": "",
+        "name": "multi_choice",
+        "score": 0,
+        "defaultValue": null,
+        "labelPosition": "inherit",
+        "optionItems": [],
+        "optionsLayout": "vertical"
+      }
+    },
+    {
+      "type": "judge",
+      "displayName": "判断题",
+      "aiHint": "答案为布尔值，true/false 的显示文案可以配置。",
+      "componentType": "ANSWER_COMPONENT",
+      "answerType": "boolean",
+      "designOnlyOptionKeys": [
+        "correctAnswer"
+      ],
+      "defaultOptions": {
+        "title": "",
+        "name": "judge",
+        "score": 0,
+        "defaultValue": null,
+        "labelPosition": "inherit",
+        "trueLabel": "正确",
+        "falseLabel": "错误",
+        "optionsLayout": "horizontal"
+      }
+    },
+    {
+      "type": "fill-blank",
+      "displayName": "填空题",
+      "aiHint": "单行文本答案，可配置最大长度与标准答案。",
+      "componentType": "ANSWER_COMPONENT",
+      "answerType": "string",
+      "designOnlyOptionKeys": [
+        "correctAnswer"
+      ],
+      "defaultOptions": {
+        "title": "",
+        "name": "fill_blank",
+        "score": 0,
+        "defaultValue": null,
+        "labelPosition": "inherit",
+        "maxLength": 200,
+        "placeholder": "",
+        "width": 240
+      }
+    },
+    {
+      "type": "essay",
+      "displayName": "主观题",
+      "aiHint": "多行主观文本答案，不配置标准答案。",
+      "componentType": "ANSWER_COMPONENT",
+      "answerType": "string",
+      "designOnlyOptionKeys": [],
+      "defaultOptions": {
+        "title": "",
+        "name": "essay",
+        "score": 0,
+        "defaultValue": null,
+        "labelPosition": "inherit",
+        "minLength": 0,
+        "maxLength": 2000,
+        "placeholder": "",
+        "rows": 6
+      }
+    }
+  ]
+}

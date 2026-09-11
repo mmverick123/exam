@@ -1,0 +1,213 @@
+{
+  "valid": {
+    "contractVersion": "1.0.0",
+    "widgetList": [
+      {
+        "type": "page",
+        "id": "page_root",
+        "options": {},
+        "widgetList": [
+          {
+            "type": "stem",
+            "id": "stem_1",
+            "options": {
+              "title": "",
+              "content": "<p>2 + 2 等于多少？</p>",
+              "align": "left"
+            }
+          },
+          {
+            "type": "single-choice",
+            "id": "single_1",
+            "options": {
+              "title": "第 1 题",
+              "name": "answer_1",
+              "score": 5,
+              "defaultValue": null,
+              "labelPosition": "inherit",
+              "optionItems": [
+                { "label": "3", "value": "opt_a" },
+                { "label": "4", "value": "opt_b" }
+              ],
+              "correctAnswer": "opt_b",
+              "optionsLayout": "vertical"
+            }
+          }
+        ]
+      }
+    ],
+    "formConfig": {
+      "labelPosition": "top",
+      "labelWidth": 100,
+      "size": "default",
+      "layoutType": "PC"
+    }
+  },
+  "invalid": [
+    {
+      "name": "nested-page",
+      "expectedCodes": ["CHILD_TYPE_NOT_ALLOWED"],
+      "json": {
+        "contractVersion": "1.0.0",
+        "widgetList": [{
+          "type": "page", "id": "root", "options": {},
+          "widgetList": [{ "type": "page", "id": "nested", "options": {}, "widgetList": [] }]
+        }],
+        "formConfig": { "labelPosition": "top", "labelWidth": 100, "size": "default", "layoutType": "PC" }
+      }
+    },
+    {
+      "name": "self-nested-question-group",
+      "expectedCodes": ["CHILD_TYPE_NOT_ALLOWED"],
+      "json": {
+        "contractVersion": "1.0.0",
+        "widgetList": [{
+          "type": "page", "id": "root", "options": {},
+          "widgetList": [{
+            "type": "question-group", "id": "group_1", "options": {},
+            "widgetList": [{ "type": "question-group", "id": "group_2", "options": {}, "widgetList": [] }]
+          }]
+        }],
+        "formConfig": { "labelPosition": "top", "labelWidth": 100, "size": "default", "layoutType": "PC" }
+      }
+    },
+    {
+      "name": "missing-contract-version",
+      "expectedCodes": ["CONTRACT_VERSION_INVALID"],
+      "json": {
+        "widgetList": [{ "type": "page", "id": "root", "options": {}, "widgetList": [] }],
+        "formConfig": { "labelPosition": "top", "labelWidth": 100, "size": "default", "layoutType": "PC" }
+      }
+    },
+    {
+      "name": "malformed-contract-version",
+      "expectedCodes": ["CONTRACT_VERSION_INVALID"],
+      "json": {
+        "contractVersion": "v1",
+        "widgetList": [{ "type": "page", "id": "root", "options": {}, "widgetList": [] }],
+        "formConfig": { "labelPosition": "top", "labelWidth": 100, "size": "default", "layoutType": "PC" }
+      }
+    },
+    {
+      "name": "duplicate-option-value",
+      "expectedCodes": ["OPTION_VALUE_DUPLICATE"],
+      "json": {
+        "contractVersion": "1.0.0",
+        "widgetList": [{
+          "type": "page", "id": "root", "options": {},
+          "widgetList": [{
+            "type": "single-choice", "id": "single_1",
+            "options": {
+              "name": "answer_1",
+              "optionItems": [
+                { "label": "A", "value": "same" },
+                { "label": "B", "value": "same" }
+              ]
+            }
+          }]
+        }],
+        "formConfig": { "labelPosition": "top", "labelWidth": 100, "size": "default", "layoutType": "PC" }
+      }
+    },
+    {
+      "name": "invalid-form-config-schema",
+      "expectedCodes": ["FORM_CONFIG_SCHEMA"],
+      "json": {
+        "contractVersion": "1.0.0",
+        "widgetList": [{ "type": "page", "id": "root", "options": {}, "widgetList": [] }],
+        "formConfig": { "labelPosition": "top" }
+      }
+    },
+    {
+      "name": "unknown-widget-type",
+      "expectedCodes": ["UNKNOWN_WIDGET_TYPE"],
+      "json": {
+        "contractVersion": "1.0.0",
+        "widgetList": [{
+          "type": "page", "id": "root", "options": {},
+          "widgetList": [{ "type": "alien", "id": "alien_1", "options": {} }]
+        }],
+        "formConfig": { "labelPosition": "top", "labelWidth": 100, "size": "default", "layoutType": "PC" }
+      }
+    },
+    {
+      "name": "missing-and-duplicate-node-id",
+      "expectedCodes": ["NODE_ID_MISSING", "NODE_ID_DUPLICATE"],
+      "json": {
+        "contractVersion": "1.0.0",
+        "widgetList": [{
+          "type": "page", "id": "root", "options": {},
+          "widgetList": [
+            { "type": "stem", "id": "dup", "options": { "content": "<p>A</p>" } },
+            { "type": "stem", "id": "dup", "options": { "content": "<p>B</p>" } },
+            { "type": "stem", "id": "", "options": { "content": "<p>C</p>" } }
+          ]
+        }],
+        "formConfig": { "labelPosition": "top", "labelWidth": 100, "size": "default", "layoutType": "PC" }
+      }
+    },
+    {
+      "name": "leaf-with-widget-list",
+      "expectedCodes": ["LEAF_HAS_CHILDREN"],
+      "json": {
+        "contractVersion": "1.0.0",
+        "widgetList": [{
+          "type": "page", "id": "root", "options": {},
+          "widgetList": [{ "type": "stem", "id": "stem_1", "options": { "content": "<p>x</p>" }, "widgetList": [] }]
+        }],
+        "formConfig": { "labelPosition": "top", "labelWidth": 100, "size": "default", "layoutType": "PC" }
+      }
+    },
+    {
+      "name": "answer-name-missing",
+      "expectedCodes": ["ANSWER_NAME_MISSING"],
+      "json": {
+        "contractVersion": "1.0.0",
+        "widgetList": [{
+          "type": "page", "id": "root", "options": {},
+          "widgetList": [{ "type": "fill-blank", "id": "fill_1", "options": {} }]
+        }],
+        "formConfig": { "labelPosition": "top", "labelWidth": 100, "size": "default", "layoutType": "PC" }
+      }
+    },
+    {
+      "name": "answer-name-duplicate-and-malformed",
+      "expectedCodes": ["ANSWER_NAME_DUPLICATE", "ANSWER_NAME_FORMAT"],
+      "json": {
+        "contractVersion": "1.0.0",
+        "widgetList": [{
+          "type": "page", "id": "root", "options": {},
+          "widgetList": [
+            { "type": "fill-blank", "id": "fill_1", "options": { "name": "bad-name" } },
+            { "type": "essay", "id": "essay_1", "options": { "name": "bad-name" } }
+          ]
+        }],
+        "formConfig": { "labelPosition": "top", "labelWidth": 100, "size": "default", "layoutType": "PC" }
+      }
+    },
+    {
+      "name": "options-schema-and-default-value-linkage",
+      "expectedCodes": ["OPTIONS_SCHEMA", "DEFAULT_VALUE_TYPE"],
+      "json": {
+        "contractVersion": "1.0.0",
+        "widgetList": [{
+          "type": "page", "id": "root", "options": {},
+          "widgetList": [{
+            "type": "multi-choice", "id": "multi_1",
+            "options": { "name": "answer_1", "defaultValue": "not-an-array", "unknownKey": true }
+          }]
+        }],
+        "formConfig": { "labelPosition": "top", "labelWidth": 100, "size": "default", "layoutType": "PC" }
+      }
+    },
+    {
+      "name": "invalid-root",
+      "expectedCodes": ["ROOT_PAGE_INVALID"],
+      "json": {
+        "contractVersion": "1.0.0",
+        "widgetList": [{ "type": "stem", "id": "stem_1", "options": { "content": "<p>x</p>" } }],
+        "formConfig": { "labelPosition": "top", "labelWidth": 100, "size": "default", "layoutType": "PC" }
+      }
+    }
+  ]
+}
