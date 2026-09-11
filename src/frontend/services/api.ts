@@ -1,11 +1,11 @@
-const token = 'dev-token';
+export const platformToken = import.meta.env.VITE_EXAM_PLATFORM_TOKEN ?? '';
 
 export async function api<T>(path: string, init: RequestInit = {}): Promise<T> {
   const response = await fetch(path, {
     ...init,
     headers: {
       'Content-Type': 'application/json',
-      Authorization: `Bearer ${token}`,
+      Authorization: `Bearer ${platformToken}`,
       ...init.headers,
     },
   });
