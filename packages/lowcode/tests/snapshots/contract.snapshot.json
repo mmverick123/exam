@@ -1,0 +1,2122 @@
+{
+  "widgets": {
+    "contractVersion": "1.0.0",
+    "widgets": [
+      {
+        "type": "page",
+        "displayName": "页面",
+        "aiHint": "题型唯一根容器，由系统创建，不允许 Agent 生成。",
+        "componentType": "CONTAINER",
+        "allowedChildTypes": [
+          "question-group",
+          "stem",
+          "image",
+          "divider",
+          "single-choice",
+          "multi-choice",
+          "judge",
+          "fill-blank",
+          "essay"
+        ],
+        "internal": true,
+        "agentExcluded": true,
+        "defaultOptions": {}
+      },
+      {
+        "type": "question-group",
+        "displayName": "组合题",
+        "aiHint": "承载材料与多个子问；不可嵌套另一个组合题。",
+        "componentType": "CONTAINER",
+        "allowedChildTypes": [
+          "stem",
+          "image",
+          "divider",
+          "single-choice",
+          "multi-choice",
+          "judge",
+          "fill-blank",
+          "essay"
+        ],
+        "defaultOptions": {
+          "title": "",
+          "showIndex": true,
+          "gap": 16
+        }
+      },
+      {
+        "type": "stem",
+        "displayName": "题干",
+        "aiHint": "题干或材料正文，content 为经过白名单消毒的 HTML。",
+        "componentType": "DISPLAY_COMPONENT",
+        "defaultOptions": {
+          "title": "",
+          "content": "<p></p>",
+          "align": "left"
+        }
+      },
+      {
+        "type": "image",
+        "displayName": "图片",
+        "aiHint": "人工配置的 HTTPS 外链图片，Agent 不得生成。",
+        "componentType": "DISPLAY_COMPONENT",
+        "agentExcluded": true,
+        "defaultOptions": {
+          "title": "",
+          "src": "",
+          "alt": "",
+          "width": 100,
+          "align": "center"
+        }
+      },
+      {
+        "type": "divider",
+        "displayName": "分割线",
+        "aiHint": "用于分隔题目内容，可通过 title 显示居中文字。",
+        "componentType": "DISPLAY_COMPONENT",
+        "defaultOptions": {
+          "title": "",
+          "dashed": false,
+          "marginY": 12
+        }
+      },
+      {
+        "type": "single-choice",
+        "displayName": "单选题",
+        "aiHint": "考生只能选择一个选项；optionItems 的 value 是不可变标识。",
+        "componentType": "ANSWER_COMPONENT",
+        "answerType": "string",
+        "designOnlyOptionKeys": [
+          "correctAnswer"
+        ],
+        "defaultOptions": {
+          "title": "",
+          "name": "single_choice",
+          "score": 0,
+          "defaultValue": null,
+          "labelPosition": "inherit",
+          "optionItems": [],
+          "optionsLayout": "vertical"
+        }
+      },
+      {
+        "type": "multi-choice",
+        "displayName": "多选题",
+        "aiHint": "考生可选择多个选项；optionItems 的 value 是不可变标识。",
+        "componentType": "ANSWER_COMPONENT",
+        "answerType": "string[]",
+        "designOnlyOptionKeys": [
+          "correctAnswer"
+        ],
+        "defaultOptions": {
+          "title": "",
+          "name": "multi_choice",
+          "score": 0,
+          "defaultValue": null,
+          "labelPosition": "inherit",
+          "optionItems": [],
+          "optionsLayout": "vertical"
+        }
+      },
+      {
+        "type": "judge",
+        "displayName": "判断题",
+        "aiHint": "答案为布尔值，true/false 的显示文案可以配置。",
+        "componentType": "ANSWER_COMPONENT",
+        "answerType": "boolean",
+        "designOnlyOptionKeys": [
+          "correctAnswer"
+        ],
+        "defaultOptions": {
+          "title": "",
+          "name": "judge",
+          "score": 0,
+          "defaultValue": null,
+          "labelPosition": "inherit",
+          "trueLabel": "正确",
+          "falseLabel": "错误",
+          "optionsLayout": "horizontal"
+        }
+      },
+      {
+        "type": "fill-blank",
+        "displayName": "填空题",
+        "aiHint": "单行文本答案，可配置最大长度与标准答案。",
+        "componentType": "ANSWER_COMPONENT",
+        "answerType": "string",
+        "designOnlyOptionKeys": [
+          "correctAnswer"
+        ],
+        "defaultOptions": {
+          "title": "",
+          "name": "fill_blank",
+          "score": 0,
+          "defaultValue": null,
+          "labelPosition": "inherit",
+          "maxLength": 200,
+          "placeholder": "",
+          "width": 240
+        }
+      },
+      {
+        "type": "essay",
+        "displayName": "主观题",
+        "aiHint": "多行主观文本答案，不配置标准答案。",
+        "componentType": "ANSWER_COMPONENT",
+        "answerType": "string",
+        "designOnlyOptionKeys": [],
+        "defaultOptions": {
+          "title": "",
+          "name": "essay",
+          "score": 0,
+          "defaultValue": null,
+          "labelPosition": "inherit",
+          "minLength": 0,
+          "maxLength": 2000,
+          "placeholder": "",
+          "rows": 6
+        }
+      }
+    ]
+  },
+  "schema": {
+    "contractVersion": "1.0.0",
+    "formConfigSchema": {
+      "type": "object",
+      "properties": {
+        "labelPosition": {
+          "type": "string",
+          "enum": [
+            "top",
+            "left"
+          ],
+          "x-ui": {
+            "widget": "radio-group",
+            "options": [
+              {
+                "label": "顶部",
+                "value": "top"
+              },
+              {
+                "label": "左侧",
+                "value": "left"
+              }
+            ]
+          }
+        },
+        "labelWidth": {
+          "type": "number",
+          "minimum": 60,
+          "maximum": 300,
+          "x-ui": {
+            "widget": "number",
+            "min": 60,
+            "max": 300
+          }
+        },
+        "size": {
+          "type": "string",
+          "enum": [
+            "default",
+            "small",
+            "large"
+          ],
+          "x-ui": {
+            "widget": "select",
+            "options": [
+              {
+                "label": "默认",
+                "value": "default"
+              },
+              {
+                "label": "小",
+                "value": "small"
+              },
+              {
+                "label": "大",
+                "value": "large"
+              }
+            ]
+          }
+        },
+        "layoutType": {
+          "type": "string",
+          "enum": [
+            "PC",
+            "H5"
+          ],
+          "x-ui": {
+            "widget": "radio-group",
+            "options": [
+              {
+                "label": "PC",
+                "value": "PC"
+              },
+              {
+                "label": "H5",
+                "value": "H5"
+              }
+            ]
+          }
+        }
+      },
+      "required": [
+        "labelPosition",
+        "labelWidth",
+        "size",
+        "layoutType"
+      ],
+      "additionalProperties": false
+    },
+    "optionsSchemas": {
+      "page": {
+        "type": "object",
+        "properties": {},
+        "additionalProperties": false
+      },
+      "question-group": {
+        "type": "object",
+        "properties": {
+          "title": {
+            "type": "string",
+            "x-ui": {
+              "widget": "input"
+            }
+          },
+          "showIndex": {
+            "type": "boolean",
+            "x-ui": {
+              "widget": "switch"
+            }
+          },
+          "gap": {
+            "type": "number",
+            "minimum": 4,
+            "maximum": 48,
+            "x-ui": {
+              "widget": "number",
+              "min": 4,
+              "max": 48
+            }
+          }
+        },
+        "additionalProperties": false
+      },
+      "stem": {
+        "type": "object",
+        "properties": {
+          "title": {
+            "type": "string",
+            "x-ui": {
+              "widget": "input"
+            }
+          },
+          "content": {
+            "type": "string",
+            "x-ui": {
+              "widget": "richtext"
+            }
+          },
+          "align": {
+            "type": "string",
+            "enum": [
+              "left",
+              "center"
+            ],
+            "x-ui": {
+              "widget": "radio-group",
+              "options": [
+                {
+                  "label": "左对齐",
+                  "value": "left"
+                },
+                {
+                  "label": "居中",
+                  "value": "center"
+                }
+              ]
+            }
+          }
+        },
+        "required": [
+          "content"
+        ],
+        "additionalProperties": false
+      },
+      "image": {
+        "type": "object",
+        "properties": {
+          "title": {
+            "type": "string",
+            "x-ui": {
+              "widget": "input"
+            }
+          },
+          "src": {
+            "type": "string",
+            "pattern": "^$|^https://",
+            "x-ui": {
+              "widget": "url"
+            }
+          },
+          "alt": {
+            "type": "string",
+            "x-ui": {
+              "widget": "input"
+            }
+          },
+          "width": {
+            "type": "number",
+            "minimum": 10,
+            "maximum": 100,
+            "x-ui": {
+              "widget": "number",
+              "min": 10,
+              "max": 100
+            }
+          },
+          "align": {
+            "type": "string",
+            "enum": [
+              "left",
+              "center"
+            ],
+            "x-ui": {
+              "widget": "radio-group",
+              "options": [
+                {
+                  "label": "左对齐",
+                  "value": "left"
+                },
+                {
+                  "label": "居中",
+                  "value": "center"
+                }
+              ]
+            }
+          }
+        },
+        "additionalProperties": false
+      },
+      "divider": {
+        "type": "object",
+        "properties": {
+          "title": {
+            "type": "string",
+            "x-ui": {
+              "widget": "input"
+            }
+          },
+          "dashed": {
+            "type": "boolean",
+            "x-ui": {
+              "widget": "switch"
+            }
+          },
+          "marginY": {
+            "type": "number",
+            "minimum": 0,
+            "maximum": 64,
+            "x-ui": {
+              "widget": "number",
+              "min": 0,
+              "max": 64
+            }
+          }
+        },
+        "additionalProperties": false
+      },
+      "single-choice": {
+        "type": "object",
+        "properties": {
+          "title": {
+            "type": "string",
+            "x-ui": {
+              "widget": "input"
+            }
+          },
+          "name": {
+            "type": "string",
+            "pattern": "^[a-zA-Z0-9_]+$",
+            "x-ui": {
+              "widget": "input"
+            }
+          },
+          "score": {
+            "type": "number",
+            "minimum": 0,
+            "x-ui": {
+              "widget": "number",
+              "min": 0
+            }
+          },
+          "defaultValue": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "x-ui": {
+              "widget": "hidden"
+            }
+          },
+          "labelPosition": {
+            "type": "string",
+            "enum": [
+              "inherit",
+              "top",
+              "left"
+            ],
+            "x-ui": {
+              "widget": "radio-group",
+              "options": [
+                {
+                  "label": "继承表单",
+                  "value": "inherit"
+                },
+                {
+                  "label": "顶部",
+                  "value": "top"
+                },
+                {
+                  "label": "左侧",
+                  "value": "left"
+                }
+              ]
+            }
+          },
+          "optionItems": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "label": {
+                  "type": "string"
+                },
+                "value": {
+                  "type": "string"
+                }
+              },
+              "required": [
+                "label",
+                "value"
+              ],
+              "additionalProperties": false
+            },
+            "x-ui": {
+              "widget": "option-editor"
+            }
+          },
+          "correctAnswer": {
+            "type": "string",
+            "x-ui": {
+              "widget": "answer-select",
+              "optionsFrom": "optionItems"
+            }
+          },
+          "optionsLayout": {
+            "type": "string",
+            "enum": [
+              "vertical",
+              "horizontal"
+            ],
+            "description": "Default: vertical",
+            "x-ui": {
+              "widget": "radio-group",
+              "options": [
+                {
+                  "label": "纵向",
+                  "value": "vertical"
+                },
+                {
+                  "label": "横向",
+                  "value": "horizontal"
+                }
+              ]
+            }
+          }
+        },
+        "required": [
+          "name"
+        ],
+        "additionalProperties": false
+      },
+      "multi-choice": {
+        "type": "object",
+        "properties": {
+          "title": {
+            "type": "string",
+            "x-ui": {
+              "widget": "input"
+            }
+          },
+          "name": {
+            "type": "string",
+            "pattern": "^[a-zA-Z0-9_]+$",
+            "x-ui": {
+              "widget": "input"
+            }
+          },
+          "score": {
+            "type": "number",
+            "minimum": 0,
+            "x-ui": {
+              "widget": "number",
+              "min": 0
+            }
+          },
+          "defaultValue": {
+            "anyOf": [
+              {
+                "type": "array",
+                "items": {
+                  "type": "string"
+                }
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "x-ui": {
+              "widget": "hidden"
+            }
+          },
+          "labelPosition": {
+            "type": "string",
+            "enum": [
+              "inherit",
+              "top",
+              "left"
+            ],
+            "x-ui": {
+              "widget": "radio-group",
+              "options": [
+                {
+                  "label": "继承表单",
+                  "value": "inherit"
+                },
+                {
+                  "label": "顶部",
+                  "value": "top"
+                },
+                {
+                  "label": "左侧",
+                  "value": "left"
+                }
+              ]
+            }
+          },
+          "optionItems": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "label": {
+                  "type": "string"
+                },
+                "value": {
+                  "type": "string"
+                }
+              },
+              "required": [
+                "label",
+                "value"
+              ],
+              "additionalProperties": false
+            },
+            "x-ui": {
+              "widget": "option-editor"
+            }
+          },
+          "correctAnswer": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "x-ui": {
+              "widget": "answer-select",
+              "optionsFrom": "optionItems",
+              "multiple": true
+            }
+          },
+          "optionsLayout": {
+            "type": "string",
+            "enum": [
+              "vertical",
+              "horizontal"
+            ],
+            "description": "Default: vertical",
+            "x-ui": {
+              "widget": "radio-group",
+              "options": [
+                {
+                  "label": "纵向",
+                  "value": "vertical"
+                },
+                {
+                  "label": "横向",
+                  "value": "horizontal"
+                }
+              ]
+            }
+          }
+        },
+        "required": [
+          "name"
+        ],
+        "additionalProperties": false
+      },
+      "judge": {
+        "type": "object",
+        "properties": {
+          "title": {
+            "type": "string",
+            "x-ui": {
+              "widget": "input"
+            }
+          },
+          "name": {
+            "type": "string",
+            "pattern": "^[a-zA-Z0-9_]+$",
+            "x-ui": {
+              "widget": "input"
+            }
+          },
+          "score": {
+            "type": "number",
+            "minimum": 0,
+            "x-ui": {
+              "widget": "number",
+              "min": 0
+            }
+          },
+          "defaultValue": {
+            "anyOf": [
+              {
+                "type": "boolean"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "x-ui": {
+              "widget": "hidden"
+            }
+          },
+          "labelPosition": {
+            "type": "string",
+            "enum": [
+              "inherit",
+              "top",
+              "left"
+            ],
+            "x-ui": {
+              "widget": "radio-group",
+              "options": [
+                {
+                  "label": "继承表单",
+                  "value": "inherit"
+                },
+                {
+                  "label": "顶部",
+                  "value": "top"
+                },
+                {
+                  "label": "左侧",
+                  "value": "left"
+                }
+              ]
+            }
+          },
+          "trueLabel": {
+            "type": "string",
+            "x-ui": {
+              "widget": "input"
+            }
+          },
+          "falseLabel": {
+            "type": "string",
+            "x-ui": {
+              "widget": "input"
+            }
+          },
+          "correctAnswer": {
+            "type": "boolean",
+            "x-ui": {
+              "widget": "radio-group",
+              "options": [
+                {
+                  "label": "正确",
+                  "value": true
+                },
+                {
+                  "label": "错误",
+                  "value": false
+                }
+              ]
+            }
+          },
+          "optionsLayout": {
+            "type": "string",
+            "enum": [
+              "vertical",
+              "horizontal"
+            ],
+            "description": "Default: horizontal",
+            "x-ui": {
+              "widget": "radio-group",
+              "options": [
+                {
+                  "label": "纵向",
+                  "value": "vertical"
+                },
+                {
+                  "label": "横向",
+                  "value": "horizontal"
+                }
+              ]
+            }
+          }
+        },
+        "required": [
+          "name"
+        ],
+        "additionalProperties": false
+      },
+      "fill-blank": {
+        "type": "object",
+        "properties": {
+          "title": {
+            "type": "string",
+            "x-ui": {
+              "widget": "input"
+            }
+          },
+          "name": {
+            "type": "string",
+            "pattern": "^[a-zA-Z0-9_]+$",
+            "x-ui": {
+              "widget": "input"
+            }
+          },
+          "score": {
+            "type": "number",
+            "minimum": 0,
+            "x-ui": {
+              "widget": "number",
+              "min": 0
+            }
+          },
+          "defaultValue": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "x-ui": {
+              "widget": "hidden"
+            }
+          },
+          "labelPosition": {
+            "type": "string",
+            "enum": [
+              "inherit",
+              "top",
+              "left"
+            ],
+            "x-ui": {
+              "widget": "radio-group",
+              "options": [
+                {
+                  "label": "继承表单",
+                  "value": "inherit"
+                },
+                {
+                  "label": "顶部",
+                  "value": "top"
+                },
+                {
+                  "label": "左侧",
+                  "value": "left"
+                }
+              ]
+            }
+          },
+          "maxLength": {
+            "type": "number",
+            "minimum": 1,
+            "maximum": 1000,
+            "x-ui": {
+              "widget": "number",
+              "min": 1,
+              "max": 1000
+            }
+          },
+          "placeholder": {
+            "type": "string",
+            "x-ui": {
+              "widget": "input"
+            }
+          },
+          "correctAnswer": {
+            "type": "string",
+            "x-ui": {
+              "widget": "input"
+            }
+          },
+          "width": {
+            "type": "number",
+            "minimum": 80,
+            "maximum": 600,
+            "x-ui": {
+              "widget": "number",
+              "min": 80,
+              "max": 600
+            }
+          }
+        },
+        "required": [
+          "name"
+        ],
+        "additionalProperties": false
+      },
+      "essay": {
+        "type": "object",
+        "properties": {
+          "title": {
+            "type": "string",
+            "x-ui": {
+              "widget": "input"
+            }
+          },
+          "name": {
+            "type": "string",
+            "pattern": "^[a-zA-Z0-9_]+$",
+            "x-ui": {
+              "widget": "input"
+            }
+          },
+          "score": {
+            "type": "number",
+            "minimum": 0,
+            "x-ui": {
+              "widget": "number",
+              "min": 0
+            }
+          },
+          "defaultValue": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "x-ui": {
+              "widget": "hidden"
+            }
+          },
+          "labelPosition": {
+            "type": "string",
+            "enum": [
+              "inherit",
+              "top",
+              "left"
+            ],
+            "x-ui": {
+              "widget": "radio-group",
+              "options": [
+                {
+                  "label": "继承表单",
+                  "value": "inherit"
+                },
+                {
+                  "label": "顶部",
+                  "value": "top"
+                },
+                {
+                  "label": "左侧",
+                  "value": "left"
+                }
+              ]
+            }
+          },
+          "minLength": {
+            "type": "number",
+            "minimum": 0,
+            "maximum": 1000,
+            "x-ui": {
+              "widget": "number",
+              "min": 0,
+              "max": 1000
+            }
+          },
+          "maxLength": {
+            "type": "number",
+            "minimum": 1,
+            "maximum": 10000,
+            "x-ui": {
+              "widget": "number",
+              "min": 1,
+              "max": 10000
+            }
+          },
+          "placeholder": {
+            "type": "string",
+            "x-ui": {
+              "widget": "input"
+            }
+          },
+          "rows": {
+            "type": "number",
+            "minimum": 2,
+            "maximum": 20,
+            "x-ui": {
+              "widget": "number",
+              "min": 2,
+              "max": 20
+            }
+          }
+        },
+        "required": [
+          "name"
+        ],
+        "additionalProperties": false
+      }
+    },
+    "questionJsonSchema": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "$id": "https://exam.local/contracts/question-json/1.0.0",
+      "type": "object",
+      "properties": {
+        "contractVersion": {
+          "type": "string",
+          "pattern": "^\\d+\\.\\d+\\.\\d+$"
+        },
+        "widgetList": {
+          "type": "array",
+          "minItems": 1,
+          "maxItems": 1,
+          "items": {
+            "$ref": "#/$defs/pageNode"
+          }
+        },
+        "formConfig": {
+          "$ref": "#/$defs/formConfig"
+        }
+      },
+      "required": [
+        "contractVersion",
+        "widgetList",
+        "formConfig"
+      ],
+      "additionalProperties": false,
+      "$defs": {
+        "formConfig": {
+          "type": "object",
+          "properties": {
+            "labelPosition": {
+              "type": "string",
+              "enum": [
+                "top",
+                "left"
+              ],
+              "x-ui": {
+                "widget": "radio-group",
+                "options": [
+                  {
+                    "label": "顶部",
+                    "value": "top"
+                  },
+                  {
+                    "label": "左侧",
+                    "value": "left"
+                  }
+                ]
+              }
+            },
+            "labelWidth": {
+              "type": "number",
+              "minimum": 60,
+              "maximum": 300,
+              "x-ui": {
+                "widget": "number",
+                "min": 60,
+                "max": 300
+              }
+            },
+            "size": {
+              "type": "string",
+              "enum": [
+                "default",
+                "small",
+                "large"
+              ],
+              "x-ui": {
+                "widget": "select",
+                "options": [
+                  {
+                    "label": "默认",
+                    "value": "default"
+                  },
+                  {
+                    "label": "小",
+                    "value": "small"
+                  },
+                  {
+                    "label": "大",
+                    "value": "large"
+                  }
+                ]
+              }
+            },
+            "layoutType": {
+              "type": "string",
+              "enum": [
+                "PC",
+                "H5"
+              ],
+              "x-ui": {
+                "widget": "radio-group",
+                "options": [
+                  {
+                    "label": "PC",
+                    "value": "PC"
+                  },
+                  {
+                    "label": "H5",
+                    "value": "H5"
+                  }
+                ]
+              }
+            }
+          },
+          "required": [
+            "labelPosition",
+            "labelWidth",
+            "size",
+            "layoutType"
+          ],
+          "additionalProperties": false
+        },
+        "pageOptions": {
+          "type": "object",
+          "properties": {},
+          "additionalProperties": false
+        },
+        "pageNode": {
+          "type": "object",
+          "properties": {
+            "type": {
+              "const": "page"
+            },
+            "id": {
+              "type": "string",
+              "minLength": 1
+            },
+            "options": {
+              "$ref": "#/$defs/pageOptions"
+            },
+            "widgetList": {
+              "type": "array",
+              "items": {
+                "oneOf": [
+                  {
+                    "$ref": "#/$defs/pageNode"
+                  },
+                  {
+                    "$ref": "#/$defs/question-groupNode"
+                  },
+                  {
+                    "$ref": "#/$defs/stemNode"
+                  },
+                  {
+                    "$ref": "#/$defs/imageNode"
+                  },
+                  {
+                    "$ref": "#/$defs/dividerNode"
+                  },
+                  {
+                    "$ref": "#/$defs/single-choiceNode"
+                  },
+                  {
+                    "$ref": "#/$defs/multi-choiceNode"
+                  },
+                  {
+                    "$ref": "#/$defs/judgeNode"
+                  },
+                  {
+                    "$ref": "#/$defs/fill-blankNode"
+                  },
+                  {
+                    "$ref": "#/$defs/essayNode"
+                  }
+                ]
+              }
+            }
+          },
+          "required": [
+            "type",
+            "id",
+            "options",
+            "widgetList"
+          ],
+          "additionalProperties": false
+        },
+        "question-groupOptions": {
+          "type": "object",
+          "properties": {
+            "title": {
+              "type": "string",
+              "x-ui": {
+                "widget": "input"
+              }
+            },
+            "showIndex": {
+              "type": "boolean",
+              "x-ui": {
+                "widget": "switch"
+              }
+            },
+            "gap": {
+              "type": "number",
+              "minimum": 4,
+              "maximum": 48,
+              "x-ui": {
+                "widget": "number",
+                "min": 4,
+                "max": 48
+              }
+            }
+          },
+          "additionalProperties": false
+        },
+        "question-groupNode": {
+          "type": "object",
+          "properties": {
+            "type": {
+              "const": "question-group"
+            },
+            "id": {
+              "type": "string",
+              "minLength": 1
+            },
+            "options": {
+              "$ref": "#/$defs/question-groupOptions"
+            },
+            "widgetList": {
+              "type": "array",
+              "items": {
+                "oneOf": [
+                  {
+                    "$ref": "#/$defs/pageNode"
+                  },
+                  {
+                    "$ref": "#/$defs/question-groupNode"
+                  },
+                  {
+                    "$ref": "#/$defs/stemNode"
+                  },
+                  {
+                    "$ref": "#/$defs/imageNode"
+                  },
+                  {
+                    "$ref": "#/$defs/dividerNode"
+                  },
+                  {
+                    "$ref": "#/$defs/single-choiceNode"
+                  },
+                  {
+                    "$ref": "#/$defs/multi-choiceNode"
+                  },
+                  {
+                    "$ref": "#/$defs/judgeNode"
+                  },
+                  {
+                    "$ref": "#/$defs/fill-blankNode"
+                  },
+                  {
+                    "$ref": "#/$defs/essayNode"
+                  }
+                ]
+              }
+            }
+          },
+          "required": [
+            "type",
+            "id",
+            "options",
+            "widgetList"
+          ],
+          "additionalProperties": false
+        },
+        "stemOptions": {
+          "type": "object",
+          "properties": {
+            "title": {
+              "type": "string",
+              "x-ui": {
+                "widget": "input"
+              }
+            },
+            "content": {
+              "type": "string",
+              "x-ui": {
+                "widget": "richtext"
+              }
+            },
+            "align": {
+              "type": "string",
+              "enum": [
+                "left",
+                "center"
+              ],
+              "x-ui": {
+                "widget": "radio-group",
+                "options": [
+                  {
+                    "label": "左对齐",
+                    "value": "left"
+                  },
+                  {
+                    "label": "居中",
+                    "value": "center"
+                  }
+                ]
+              }
+            }
+          },
+          "required": [
+            "content"
+          ],
+          "additionalProperties": false
+        },
+        "stemNode": {
+          "type": "object",
+          "properties": {
+            "type": {
+              "const": "stem"
+            },
+            "id": {
+              "type": "string",
+              "minLength": 1
+            },
+            "options": {
+              "$ref": "#/$defs/stemOptions"
+            }
+          },
+          "required": [
+            "type",
+            "id",
+            "options"
+          ],
+          "additionalProperties": false
+        },
+        "imageOptions": {
+          "type": "object",
+          "properties": {
+            "title": {
+              "type": "string",
+              "x-ui": {
+                "widget": "input"
+              }
+            },
+            "src": {
+              "type": "string",
+              "pattern": "^$|^https://",
+              "x-ui": {
+                "widget": "url"
+              }
+            },
+            "alt": {
+              "type": "string",
+              "x-ui": {
+                "widget": "input"
+              }
+            },
+            "width": {
+              "type": "number",
+              "minimum": 10,
+              "maximum": 100,
+              "x-ui": {
+                "widget": "number",
+                "min": 10,
+                "max": 100
+              }
+            },
+            "align": {
+              "type": "string",
+              "enum": [
+                "left",
+                "center"
+              ],
+              "x-ui": {
+                "widget": "radio-group",
+                "options": [
+                  {
+                    "label": "左对齐",
+                    "value": "left"
+                  },
+                  {
+                    "label": "居中",
+                    "value": "center"
+                  }
+                ]
+              }
+            }
+          },
+          "additionalProperties": false
+        },
+        "imageNode": {
+          "type": "object",
+          "properties": {
+            "type": {
+              "const": "image"
+            },
+            "id": {
+              "type": "string",
+              "minLength": 1
+            },
+            "options": {
+              "$ref": "#/$defs/imageOptions"
+            }
+          },
+          "required": [
+            "type",
+            "id",
+            "options"
+          ],
+          "additionalProperties": false
+        },
+        "dividerOptions": {
+          "type": "object",
+          "properties": {
+            "title": {
+              "type": "string",
+              "x-ui": {
+                "widget": "input"
+              }
+            },
+            "dashed": {
+              "type": "boolean",
+              "x-ui": {
+                "widget": "switch"
+              }
+            },
+            "marginY": {
+              "type": "number",
+              "minimum": 0,
+              "maximum": 64,
+              "x-ui": {
+                "widget": "number",
+                "min": 0,
+                "max": 64
+              }
+            }
+          },
+          "additionalProperties": false
+        },
+        "dividerNode": {
+          "type": "object",
+          "properties": {
+            "type": {
+              "const": "divider"
+            },
+            "id": {
+              "type": "string",
+              "minLength": 1
+            },
+            "options": {
+              "$ref": "#/$defs/dividerOptions"
+            }
+          },
+          "required": [
+            "type",
+            "id",
+            "options"
+          ],
+          "additionalProperties": false
+        },
+        "single-choiceOptions": {
+          "type": "object",
+          "properties": {
+            "title": {
+              "type": "string",
+              "x-ui": {
+                "widget": "input"
+              }
+            },
+            "name": {
+              "type": "string",
+              "pattern": "^[a-zA-Z0-9_]+$",
+              "x-ui": {
+                "widget": "input"
+              }
+            },
+            "score": {
+              "type": "number",
+              "minimum": 0,
+              "x-ui": {
+                "widget": "number",
+                "min": 0
+              }
+            },
+            "defaultValue": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "x-ui": {
+                "widget": "hidden"
+              }
+            },
+            "labelPosition": {
+              "type": "string",
+              "enum": [
+                "inherit",
+                "top",
+                "left"
+              ],
+              "x-ui": {
+                "widget": "radio-group",
+                "options": [
+                  {
+                    "label": "继承表单",
+                    "value": "inherit"
+                  },
+                  {
+                    "label": "顶部",
+                    "value": "top"
+                  },
+                  {
+                    "label": "左侧",
+                    "value": "left"
+                  }
+                ]
+              }
+            },
+            "optionItems": {
+              "type": "array",
+              "items": {
+                "type": "object",
+                "properties": {
+                  "label": {
+                    "type": "string"
+                  },
+                  "value": {
+                    "type": "string"
+                  }
+                },
+                "required": [
+                  "label",
+                  "value"
+                ],
+                "additionalProperties": false
+              },
+              "x-ui": {
+                "widget": "option-editor"
+              }
+            },
+            "correctAnswer": {
+              "type": "string",
+              "x-ui": {
+                "widget": "answer-select",
+                "optionsFrom": "optionItems"
+              }
+            },
+            "optionsLayout": {
+              "type": "string",
+              "enum": [
+                "vertical",
+                "horizontal"
+              ],
+              "description": "Default: vertical",
+              "x-ui": {
+                "widget": "radio-group",
+                "options": [
+                  {
+                    "label": "纵向",
+                    "value": "vertical"
+                  },
+                  {
+                    "label": "横向",
+                    "value": "horizontal"
+                  }
+                ]
+              }
+            }
+          },
+          "required": [
+            "name"
+          ],
+          "additionalProperties": false
+        },
+        "single-choiceNode": {
+          "type": "object",
+          "properties": {
+            "type": {
+              "const": "single-choice"
+            },
+            "id": {
+              "type": "string",
+              "minLength": 1
+            },
+            "options": {
+              "$ref": "#/$defs/single-choiceOptions"
+            }
+          },
+          "required": [
+            "type",
+            "id",
+            "options"
+          ],
+          "additionalProperties": false
+        },
+        "multi-choiceOptions": {
+          "type": "object",
+          "properties": {
+            "title": {
+              "type": "string",
+              "x-ui": {
+                "widget": "input"
+              }
+            },
+            "name": {
+              "type": "string",
+              "pattern": "^[a-zA-Z0-9_]+$",
+              "x-ui": {
+                "widget": "input"
+              }
+            },
+            "score": {
+              "type": "number",
+              "minimum": 0,
+              "x-ui": {
+                "widget": "number",
+                "min": 0
+              }
+            },
+            "defaultValue": {
+              "anyOf": [
+                {
+                  "type": "array",
+                  "items": {
+                    "type": "string"
+                  }
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "x-ui": {
+                "widget": "hidden"
+              }
+            },
+            "labelPosition": {
+              "type": "string",
+              "enum": [
+                "inherit",
+                "top",
+                "left"
+              ],
+              "x-ui": {
+                "widget": "radio-group",
+                "options": [
+                  {
+                    "label": "继承表单",
+                    "value": "inherit"
+                  },
+                  {
+                    "label": "顶部",
+                    "value": "top"
+                  },
+                  {
+                    "label": "左侧",
+                    "value": "left"
+                  }
+                ]
+              }
+            },
+            "optionItems": {
+              "type": "array",
+              "items": {
+                "type": "object",
+                "properties": {
+                  "label": {
+                    "type": "string"
+                  },
+                  "value": {
+                    "type": "string"
+                  }
+                },
+                "required": [
+                  "label",
+                  "value"
+                ],
+                "additionalProperties": false
+              },
+              "x-ui": {
+                "widget": "option-editor"
+              }
+            },
+            "correctAnswer": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              },
+              "x-ui": {
+                "widget": "answer-select",
+                "optionsFrom": "optionItems",
+                "multiple": true
+              }
+            },
+            "optionsLayout": {
+              "type": "string",
+              "enum": [
+                "vertical",
+                "horizontal"
+              ],
+              "description": "Default: vertical",
+              "x-ui": {
+                "widget": "radio-group",
+                "options": [
+                  {
+                    "label": "纵向",
+                    "value": "vertical"
+                  },
+                  {
+                    "label": "横向",
+                    "value": "horizontal"
+                  }
+                ]
+              }
+            }
+          },
+          "required": [
+            "name"
+          ],
+          "additionalProperties": false
+        },
+        "multi-choiceNode": {
+          "type": "object",
+          "properties": {
+            "type": {
+              "const": "multi-choice"
+            },
+            "id": {
+              "type": "string",
+              "minLength": 1
+            },
+            "options": {
+              "$ref": "#/$defs/multi-choiceOptions"
+            }
+          },
+          "required": [
+            "type",
+            "id",
+            "options"
+          ],
+          "additionalProperties": false
+        },
+        "judgeOptions": {
+          "type": "object",
+          "properties": {
+            "title": {
+              "type": "string",
+              "x-ui": {
+                "widget": "input"
+              }
+            },
+            "name": {
+              "type": "string",
+              "pattern": "^[a-zA-Z0-9_]+$",
+              "x-ui": {
+                "widget": "input"
+              }
+            },
+            "score": {
+              "type": "number",
+              "minimum": 0,
+              "x-ui": {
+                "widget": "number",
+                "min": 0
+              }
+            },
+            "defaultValue": {
+              "anyOf": [
+                {
+                  "type": "boolean"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "x-ui": {
+                "widget": "hidden"
+              }
+            },
+            "labelPosition": {
+              "type": "string",
+              "enum": [
+                "inherit",
+                "top",
+                "left"
+              ],
+              "x-ui": {
+                "widget": "radio-group",
+                "options": [
+                  {
+                    "label": "继承表单",
+                    "value": "inherit"
+                  },
+                  {
+                    "label": "顶部",
+                    "value": "top"
+                  },
+                  {
+                    "label": "左侧",
+                    "value": "left"
+                  }
+                ]
+              }
+            },
+            "trueLabel": {
+              "type": "string",
+              "x-ui": {
+                "widget": "input"
+              }
+            },
+            "falseLabel": {
+              "type": "string",
+              "x-ui": {
+                "widget": "input"
+              }
+            },
+            "correctAnswer": {
+              "type": "boolean",
+              "x-ui": {
+                "widget": "radio-group",
+                "options": [
+                  {
+                    "label": "正确",
+                    "value": true
+                  },
+                  {
+                    "label": "错误",
+                    "value": false
+                  }
+                ]
+              }
+            },
+            "optionsLayout": {
+              "type": "string",
+              "enum": [
+                "vertical",
+                "horizontal"
+              ],
+              "description": "Default: horizontal",
+              "x-ui": {
+                "widget": "radio-group",
+                "options": [
+                  {
+                    "label": "纵向",
+                    "value": "vertical"
+                  },
+                  {
+                    "label": "横向",
+                    "value": "horizontal"
+                  }
+                ]
+              }
+            }
+          },
+          "required": [
+            "name"
+          ],
+          "additionalProperties": false
+        },
+        "judgeNode": {
+          "type": "object",
+          "properties": {
+            "type": {
+              "const": "judge"
+            },
+            "id": {
+              "type": "string",
+              "minLength": 1
+            },
+            "options": {
+              "$ref": "#/$defs/judgeOptions"
+            }
+          },
+          "required": [
+            "type",
+            "id",
+            "options"
+          ],
+          "additionalProperties": false
+        },
+        "fill-blankOptions": {
+          "type": "object",
+          "properties": {
+            "title": {
+              "type": "string",
+              "x-ui": {
+                "widget": "input"
+              }
+            },
+            "name": {
+              "type": "string",
+              "pattern": "^[a-zA-Z0-9_]+$",
+              "x-ui": {
+                "widget": "input"
+              }
+            },
+            "score": {
+              "type": "number",
+              "minimum": 0,
+              "x-ui": {
+                "widget": "number",
+                "min": 0
+              }
+            },
+            "defaultValue": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "x-ui": {
+                "widget": "hidden"
+              }
+            },
+            "labelPosition": {
+              "type": "string",
+              "enum": [
+                "inherit",
+                "top",
+                "left"
+              ],
+              "x-ui": {
+                "widget": "radio-group",
+                "options": [
+                  {
+                    "label": "继承表单",
+                    "value": "inherit"
+                  },
+                  {
+                    "label": "顶部",
+                    "value": "top"
+                  },
+                  {
+                    "label": "左侧",
+                    "value": "left"
+                  }
+                ]
+              }
+            },
+            "maxLength": {
+              "type": "number",
+              "minimum": 1,
+              "maximum": 1000,
+              "x-ui": {
+                "widget": "number",
+                "min": 1,
+                "max": 1000
+              }
+            },
+            "placeholder": {
+              "type": "string",
+              "x-ui": {
+                "widget": "input"
+              }
+            },
+            "correctAnswer": {
+              "type": "string",
+              "x-ui": {
+                "widget": "input"
+              }
+            },
+            "width": {
+              "type": "number",
+              "minimum": 80,
+              "maximum": 600,
+              "x-ui": {
+                "widget": "number",
+                "min": 80,
+                "max": 600
+              }
+            }
+          },
+          "required": [
+            "name"
+          ],
+          "additionalProperties": false
+        },
+        "fill-blankNode": {
+          "type": "object",
+          "properties": {
+            "type": {
+              "const": "fill-blank"
+            },
+            "id": {
+              "type": "string",
+              "minLength": 1
+            },
+            "options": {
+              "$ref": "#/$defs/fill-blankOptions"
+            }
+          },
+          "required": [
+            "type",
+            "id",
+            "options"
+          ],
+          "additionalProperties": false
+        },
+        "essayOptions": {
+          "type": "object",
+          "properties": {
+            "title": {
+              "type": "string",
+              "x-ui": {
+                "widget": "input"
+              }
+            },
+            "name": {
+              "type": "string",
+              "pattern": "^[a-zA-Z0-9_]+$",
+              "x-ui": {
+                "widget": "input"
+              }
+            },
+            "score": {
+              "type": "number",
+              "minimum": 0,
+              "x-ui": {
+                "widget": "number",
+                "min": 0
+              }
+            },
+            "defaultValue": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "x-ui": {
+                "widget": "hidden"
+              }
+            },
+            "labelPosition": {
+              "type": "string",
+              "enum": [
+                "inherit",
+                "top",
+                "left"
+              ],
+              "x-ui": {
+                "widget": "radio-group",
+                "options": [
+                  {
+                    "label": "继承表单",
+                    "value": "inherit"
+                  },
+                  {
+                    "label": "顶部",
+                    "value": "top"
+                  },
+                  {
+                    "label": "左侧",
+                    "value": "left"
+                  }
+                ]
+              }
+            },
+            "minLength": {
+              "type": "number",
+              "minimum": 0,
+              "maximum": 1000,
+              "x-ui": {
+                "widget": "number",
+                "min": 0,
+                "max": 1000
+              }
+            },
+            "maxLength": {
+              "type": "number",
+              "minimum": 1,
+              "maximum": 10000,
+              "x-ui": {
+                "widget": "number",
+                "min": 1,
+                "max": 10000
+              }
+            },
+            "placeholder": {
+              "type": "string",
+              "x-ui": {
+                "widget": "input"
+              }
+            },
+            "rows": {
+              "type": "number",
+              "minimum": 2,
+              "maximum": 20,
+              "x-ui": {
+                "widget": "number",
+                "min": 2,
+                "max": 20
+              }
+            }
+          },
+          "required": [
+            "name"
+          ],
+          "additionalProperties": false
+        },
+        "essayNode": {
+          "type": "object",
+          "properties": {
+            "type": {
+              "const": "essay"
+            },
+            "id": {
+              "type": "string",
+              "minLength": 1
+            },
+            "options": {
+              "$ref": "#/$defs/essayOptions"
+            }
+          },
+          "required": [
+            "type",
+            "id",
+            "options"
+          ],
+          "additionalProperties": false
+        }
+      }
+    }
+  },
+  "version": {
+    "contractVersion": "1.0.0",
+    "libVersion": "0.1.0"
+  }
+}
