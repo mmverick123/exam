@@ -1,0 +1,19 @@
+{
+  "name": "exam-monorepo",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "dev": "node scripts/dev.mjs",
+    "verify": "pnpm verify:lowcode && pnpm verify:agent && pnpm verify:platform",
+    "verify:lowcode": "pnpm --dir packages/lowcode verify",
+    "verify:agent": "pnpm --dir services/agent verify",
+    "verify:platform": "pnpm --dir apps/platform verify",
+    "acceptance": "pnpm --dir acceptance verify",
+    "eval:smoke": "pnpm --dir services/agent eval:smoke",
+    "release:lowcode": "pnpm --dir packages/lowcode release:npm"
+  },
+  "engines": {
+    "node": ">=22"
+  },
+  "packageManager": "pnpm@11.19.0"
+}

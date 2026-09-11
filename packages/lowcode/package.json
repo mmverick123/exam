@@ -4,7 +4,8 @@
   "description": "Schema-driven question composition contract, renderer, and designer",
   "repository": {
     "type": "git",
-    "url": "https://github.com/mmverick123/exam-lowcode-lib.git"
+    "url": "git+https://github.com/mmverick123/exam.git",
+    "directory": "packages/lowcode"
   },
   "type": "module",
   "sideEffects": false,

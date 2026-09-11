@@ -14,6 +14,10 @@ describe('frozen eval corpus', () => {
     expect(cases.filter((item) => item.subset === 'create')).toHaveLength(24);
     expect(cases.filter((item) => item.subset === 'modify')).toHaveLength(24);
     expect(new Set(cases.map((item) => item.id)).size).toBe(cases.length);
-    expect(createHash('sha256').update(createText).update('\n').update(modifyText).digest('hex')).toBe(expectedHash);
+    expect(createHash('sha256')
+      .update(createText.replaceAll('\r\n', '\n'))
+      .update('\n')
+      .update(modifyText.replaceAll('\r\n', '\n'))
+      .digest('hex')).toBe(expectedHash);
   });
 });

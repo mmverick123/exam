@@ -12,7 +12,7 @@ import { runAgent, type AgentRequest } from '../../application/state-machine';
 const SERVICE_TOKEN = process.env.AGENT_SERVICE_TOKEN
   ?? (process.env.NODE_ENV === 'test' ? 'agent-dev-token' : undefined);
 
-if (!SERVICE_TOKEN) throw new Error('AGENT_SERVICE_TOKEN 未配置，请写入 exam-agent/.env.local');
+if (!SERVICE_TOKEN) throw new Error('AGENT_SERVICE_TOKEN 未配置，请写入 services/agent/.env.local');
 
 function writeSse(reply: { raw: { write: (chunk: string) => boolean } }, event: string, data: Record<string, unknown>): void {
   reply.raw.write(`event: ${event}\ndata: ${JSON.stringify(data)}\n\n`);

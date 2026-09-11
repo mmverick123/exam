@@ -1,0 +1,73 @@
+services:
+  web:
+    build:
+      context: .
+      dockerfile: deploy/Dockerfile.web
+      args:
+        VITE_EXAM_PLATFORM_TOKEN: ${EXAM_PLATFORM_TOKEN:?set EXAM_PLATFORM_TOKEN in .env.compose.local}
+    ports:
+      - "8088:80"
+    depends_on:
+      platform:
+        condition: service_healthy
+
+  platform:
+    build:
+      context: .
+      dockerfile: deploy/Dockerfile.platform
+    environment:
+      PORT: "8080"
+      EXAM_PLATFORM_TOKEN: ${EXAM_PLATFORM_TOKEN:?set EXAM_PLATFORM_TOKEN in .env.compose.local}
+      AGENT_SERVICE_URL: http://agent:3000
+      AGENT_SERVICE_TOKEN: ${AGENT_SERVICE_TOKEN:?set AGENT_SERVICE_TOKEN in .env.compose.local}
+      DATABASE_URL: mysql://exam:exam@mysql:3306/exam
+    expose:
+      - "8080"
+    depends_on:
+      mysql:
+        condition: service_healthy
+      agent:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "node", "-e", "fetch('http://127.0.0.1:8080/api/question-types',{headers:{authorization:'Bearer '+process.env.EXAM_PLATFORM_TOKEN}}).then(r=>{if(!r.ok)process.exit(1)})"]
+      interval: 5s
+      timeout: 3s
+      retries: 20
+
+  agent:
+    build:
+      context: .
+      dockerfile: deploy/Dockerfile.agent
+    environment:
+      PORT: "3000"
+      AGENT_SERVICE_TOKEN: ${AGENT_SERVICE_TOKEN:?set AGENT_SERVICE_TOKEN in .env.compose.local}
+      ANTHROPIC_API_KEY: ${ANTHROPIC_API_KEY:-}
+      ANTHROPIC_BASE_URL: ${ANTHROPIC_BASE_URL:-}
+    expose:
+      - "3000"
+    healthcheck:
+      test: ["CMD", "node", "-e", "fetch('http://127.0.0.1:3000/agent/chat',{method:'POST'}).then(r=>{if(r.status!==401)process.exit(1)})"]
+      interval: 5s
+      timeout: 3s
+      retries: 20
+
+  mysql:
+    image: mysql:8.4
+    environment:
+      MYSQL_DATABASE: exam
+      MYSQL_USER: exam
+      MYSQL_PASSWORD: exam
+      MYSQL_ROOT_PASSWORD: local-root-only
+    expose:
+      - "3306"
+    volumes:
+      - mysql-data:/var/lib/mysql
+      - ./apps/platform/schema.sql:/docker-entrypoint-initdb.d/01-schema.sql:ro
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "127.0.0.1", "-uexam", "-pexam"]
+      interval: 5s
+      timeout: 3s
+      retries: 30
+
+volumes:
+  mysql-data:

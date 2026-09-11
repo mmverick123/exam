@@ -1,4 +1,4 @@
-# exam-platform（Step 2 最小消费端）
+# apps/platform（Step 2 消费端）
 
 这是业务平台的最小可运行实现：Fastify API、内存仓储适配器，以及与 `@mmverick123/lowcode/contract`（消费端 alias 为 `@exam/lowcode/contract`）共享的题型/答案校验。`schema.sql` 提供 MySQL 表结构，后续可将 `QuestionTypeStore` 替换为 Prisma repository。
 

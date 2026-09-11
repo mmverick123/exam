@@ -6,9 +6,9 @@ import type { ContractAdapter } from './bundles';
 export const patchInputSchema = z.object({
   summary: z.string(),
   ops: z.array(z.discriminatedUnion('op', [
-    z.object({ op: z.literal('insertChild'), parentId: z.string(), afterId: z.string().nullable(), node: z.record(z.unknown()) }),
+    z.object({ op: z.literal('insertChild'), parentId: z.string(), afterId: z.string().nullable(), node: z.record(z.string(), z.unknown()) }),
     z.object({ op: z.literal('remove'), targetId: z.string() }),
-    z.object({ op: z.literal('updateOptions'), targetId: z.string(), options: z.record(z.unknown()) }),
+    z.object({ op: z.literal('updateOptions'), targetId: z.string(), options: z.record(z.string(), z.unknown()) }),
     z.object({ op: z.literal('move'), targetId: z.string(), parentId: z.string(), afterId: z.string().nullable() }),
   ])),
 });

@@ -41,7 +41,11 @@ function provider(strategy: 'single-stage' | 'two-stage'): AgentProvider {
 async function loadCases(): Promise<{ cases: EvalCase[]; hash: string }> {
   const createText = await readFile(new URL('cases/create.json', root), 'utf8');
   const modifyText = await readFile(new URL('cases/modify.json', root), 'utf8');
-  const hash = createHash('sha256').update(createText).update('\n').update(modifyText).digest('hex');
+  const hash = createHash('sha256')
+    .update(createText.replaceAll('\r\n', '\n'))
+    .update('\n')
+    .update(modifyText.replaceAll('\r\n', '\n'))
+    .digest('hex');
   const expectedHash = (await readFile(new URL('cases/case-set.sha256', root), 'utf8')).trim();
   if (hash !== expectedHash) throw new Error(`Eval 用例集已变更但未显式重新冻结：expected ${expectedHash}, actual ${hash}`);
   return { cases: [...JSON.parse(createText), ...JSON.parse(modifyText)] as EvalCase[], hash };

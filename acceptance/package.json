@@ -1,0 +1,14 @@
+{
+  "name": "exam-acceptance",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "step3-step4": "tsx run.mjs step3-step4.acceptance.ts",
+    "step5": "tsx run.mjs step5.acceptance.ts",
+    "step6": "tsx run.mjs step6.acceptance.ts",
+    "verify": "pnpm step3-step4 && pnpm step5 && pnpm step6"
+  },
+  "devDependencies": {
+    "tsx": "^4.20.5"
+  }
+}

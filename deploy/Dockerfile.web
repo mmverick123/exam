@@ -1,0 +1,18 @@
+FROM node:22-alpine AS build
+RUN corepack enable
+WORKDIR /workspace
+COPY package.json pnpm-lock.yaml pnpm-workspace.yaml .npmrc ./
+COPY services/agent/package.json ./services/agent/package.json
+COPY apps/platform/package.json ./apps/platform/package.json
+COPY packages/lowcode/package.json ./packages/lowcode/package.json
+COPY acceptance/package.json ./acceptance/package.json
+RUN pnpm install --frozen-lockfile --filter exam-platform...
+COPY apps/platform ./apps/platform
+WORKDIR /workspace/apps/platform
+ARG VITE_EXAM_PLATFORM_TOKEN
+ENV VITE_EXAM_PLATFORM_TOKEN=$VITE_EXAM_PLATFORM_TOKEN
+RUN pnpm build:web
+
+FROM caddy:2.10-alpine
+COPY deploy/Caddyfile /etc/caddy/Caddyfile
+COPY --from=build /workspace/apps/platform/dist /srv

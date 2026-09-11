@@ -1,0 +1,16 @@
+packages:
+  - apps/*
+  - services/*
+  - packages/*
+  - acceptance
+
+linkWorkspacePackages: false
+
+allowBuilds:
+  esbuild: true
+
+onlyBuiltDependencies:
+  - esbuild
+
+minimumReleaseAgeExclude:
+  - '@mmverick123/lowcode'

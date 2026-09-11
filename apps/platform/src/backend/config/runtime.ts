@@ -2,7 +2,7 @@ import '../../config/load-env';
 
 function secret(name: 'EXAM_PLATFORM_TOKEN' | 'AGENT_SERVICE_TOKEN', testFallback: string): string {
   const value = process.env[name] ?? (process.env.NODE_ENV === 'test' ? testFallback : undefined);
-  if (!value) throw new Error(`${name} 未配置，请写入 exam-platform/.env.local`);
+  if (!value) throw new Error(`${name} 未配置，请写入 apps/platform/.env.local`);
   return value;
 }
 

@@ -1,4 +1,4 @@
-# exam-agent（Step 4）
+# services/agent（Step 4）
 
 实现意图判定 → Plan → Generate → Validate → Repair → Degrade 状态机。默认使用离线 `DeterministicProvider` 便于本地验收；配置 `ANTHROPIC_API_KEY` 后可切换到 Anthropic Claude（Intent 使用 Haiku，其余阶段使用 Sonnet），结构化输出强制走 `emit_patch` tool use。
 
