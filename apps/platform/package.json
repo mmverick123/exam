@@ -1,0 +1,36 @@
+{
+  "name": "exam-platform",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "dev": "tsx src/backend/main.ts",
+    "dev:web": "vite",
+    "build:web": "vite build",
+    "lint": "eslint src tests --max-warnings 0",
+    "typecheck": "tsc --noEmit",
+    "architecture:check": "tsx scripts/check-architecture.ts platform",
+    "test": "vitest run",
+    "verify": "pnpm lint && pnpm typecheck && pnpm architecture:check && pnpm test && pnpm build:web"
+  },
+  "dependencies": {
+    "@exam/lowcode": "npm:@mmverick123/lowcode@0.1.0",
+    "fastify": "^5.6.1",
+    "react": "^19.1.1",
+    "react-dom": "^19.1.1"
+  },
+  "devDependencies": {
+    "@types/node": "^24.3.1",
+    "@types/react": "^19.1.12",
+    "@types/react-dom": "^19.1.9",
+    "@typescript-eslint/eslint-plugin": "^8.43.0",
+    "@typescript-eslint/parser": "^8.43.0",
+    "eslint": "^9.35.0",
+    "tsx": "^4.20.5",
+    "typescript": "^5.9.2",
+    "vite": "^7.1.5",
+    "vitest": "^3.2.4"
+  },
+  "engines": {
+    "node": ">=22"
+  }
+}
