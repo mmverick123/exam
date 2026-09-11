@@ -13,9 +13,10 @@ export class AnthropicProvider implements AgentProvider {
     apiKey = process.env.ANTHROPIC_API_KEY,
     private readonly intentModel = process.env.AGENT_INTENT_MODEL ?? 'claude-haiku-4-5',
     private readonly generationModel = process.env.AGENT_MODEL ?? 'claude-sonnet-5',
+    baseURL = process.env.ANTHROPIC_BASE_URL,
   ) {
     if (!apiKey) throw new Error('ANTHROPIC_API_KEY 未配置');
-    this.client = new Anthropic({ apiKey });
+    this.client = new Anthropic({ apiKey, ...(baseURL ? { baseURL } : {}) });
   }
 
   async intent(context: ProviderContext): Promise<IntentResult> {

@@ -1,5 +1,6 @@
 import { CONTRACT_VERSION, DEFAULT_FORM_CONFIG, type QuestionJson } from '@exam/lowcode/contract';
 
+import '../../config/load-env';
 import { runAgent } from '../../application/state-machine';
 
 const message = process.argv.slice(2).join(' ') || '出一道关于光合作用的单选题，4 个选项';

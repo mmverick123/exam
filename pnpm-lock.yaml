@@ -13,7 +13,7 @@ importers:
         version: 0.63.0(zod@3.25.76)
       '@exam/lowcode':
         specifier: npm:@mmverick123/lowcode@0.1.0
-        version: '@mmverick123/lowcode@0.1.0'
+        version: '@mmverick123/lowcode@0.1.0(@dnd-kit/core@6.3.1(react-dom@19.3.0(react@19.3.0))(react@19.3.0))(dompurify@3.4.15)(react-dom@19.3.0(react@19.3.0))(react@19.3.0)(zustand@5.0.15(react@19.3.0))'
       fastify:
         specifier: ^5.6.1
         version: 5.12.3
@@ -60,6 +60,22 @@ packages:
   '@babel/runtime@7.29.7':
     resolution: {integrity: sha512-Nq8OhGWiZIZGV6hLHoyAKLLcJihP/xFeBMGJoUrxTX2psI8dCifzLhZISFb+VWS3wFMRDmCGw5R+dOySCqPLhw==}
     engines: {node: '>=6.9.0'}
+
+  '@dnd-kit/accessibility@3.1.1':
+    resolution: {integrity: sha512-2P+YgaXF+gRsIihwwY1gCsQSYnu9Zyj2py8kY5fFvUM1qm2WA2u639R6YNVfU4GWr+ZM5mqEsfHZZLoRONbemw==}
+    peerDependencies:
+      react: '>=16.8.0'
+
+  '@dnd-kit/core@6.3.1':
+    resolution: {integrity: sha512-xkGBRQQab4RLwgXxoqETICr6S5JlogafbhNsidmrkVv2YRs5MLwpjoF2qpiGjQt8S9AoxtIV603s0GIUpY5eYQ==}
+    peerDependencies:
+      react: '>=16.8.0'
+      react-dom: '>=16.8.0'
+
+  '@dnd-kit/utilities@3.2.2':
+    resolution: {integrity: sha512-+MKAJEOfaBe5SmV6t34p80MMKhjvUz0vRrvVJbPT0WElzaOJ/1xs+D+KDv+tD/NE5ujfrChEcshd4fLn0wpiqg==}
+    peerDependencies:
+      react: '>=16.8.0'
 
   '@esbuild/aix-ppc64@0.28.2':
     resolution: {integrity: sha512-XExcO+dvLKvVtNTibSTBej1NCAbaGhWn9Ww1ZPx80qsahhPFe/8jgWP0IchNe0F3HwkU7n8ejhH8bjonqht8mQ==}
@@ -301,7 +317,7 @@ packages:
     resolution: {integrity: sha512-T7jf+5zgsZHwNJ4lvQ7/aezbyk0nNX+zJVWpmHA7VYsEx7a7qr5Rg5IbtJFqkgze5Y2sruq1RUY8Q837Od7iFw==}
 
   '@mmverick123/lowcode@0.1.0':
-    resolution: {integrity: sha512-tLJMc6E/CSb3a1OHxK0pMbggmOYwxkOi1rEZ54Vr89BNscSb9hNc1vENHNNM8ym23oA0MDoJy0UCqAHfax7Afg==}
+    resolution: {integrity: sha512-ywJHlRwU5unqcklx6t5fAD+Tnk5Lq3cRNC6/7OhlI8G0eoDRBZPM7d+DokhvFybHVFuu/a5k7EkcjHiA/NSGJA==, tarball: https://npm.pkg.github.com/download/@mmverick123/lowcode/0.1.0/dda4cd4ec0e416f52511d09b939dc761897a5bb0}
     engines: {node: '>=22'}
     peerDependencies:
       '@dnd-kit/core': ^6.3.1
@@ -309,17 +325,6 @@ packages:
       react: ^19.1.1
       react-dom: ^19.1.1
       zustand: ^5.0.8
-    peerDependenciesMeta:
-      '@dnd-kit/core':
-        optional: true
-      dompurify:
-        optional: true
-      react:
-        optional: true
-      react-dom:
-        optional: true
-      zustand:
-        optional: true
 
   '@napi-rs/lzma-linux-x64-gnu@1.5.1':
     resolution: {integrity: sha512-oTXEIha4SsuXdTA4Iyskj0kpdx2yVXdhd75c2v3xGrHFfVMsbhTPZU/nMPL4sWKo4pBHm3aucLaqGlF696dTyQ==}
@@ -487,6 +492,9 @@ packages:
 
   '@types/node@24.13.3':
     resolution: {integrity: sha512-Dh8vAsV36ig5wa9OX4pXvMc9D3Veibfw2wix0CUwYODLD8nkj9UsLjASr49nPg+2eKzxhBV+v7L8pXvT4e639Q==}
+
+  '@types/trusted-types@2.0.7':
+    resolution: {integrity: sha512-ScaPdn1dQczgbl0QFTeTOmVHFULt394XJgOQNoyVhZ6r2vLnMLJfBPd53SB52T/3G36VI1/g2MZaX0cwDuXsfw==}
 
   '@typescript-eslint/eslint-plugin@8.70.0':
     resolution: {integrity: sha512-/v8HZt6RlyIZxB3ntehELOcUcfxKPVGWXnQdJuHRmzrqgF8nQypcC/oxGW+Ot4VGKDq81XugPKxx0n5PBtf9PA==}
@@ -711,6 +719,9 @@ packages:
   dequal@2.0.3:
     resolution: {integrity: sha512-0je+qPKHEMohvfRTCEo3CrPG6cAzAYgmzKyxRiYSSDkS6eGJdyVJm7WaYA5ECaAD9wLB2T4EEeymA5aFVcYXCA==}
     engines: {node: '>=6'}
+
+  dompurify@3.4.15:
+    resolution: {integrity: sha512-EUBjM+B+lkDE41iE82DDSCfkoPGfXx8IxFxPMjNzm/Uk4xDet77rTN9wqlxlVg71kK7XGuUMv6wUxJUwwv+Xyw==}
 
   eastasianwidth@0.2.0:
     resolution: {integrity: sha512-I88TYZWc9XiYHRQ4/3c5rjjfgkjhLyW2luGIheGERbNQ6OY7yTybanSpDXZa8y7VUP9YmDcYa+eyq4ca7iLqWA==}
@@ -1077,6 +1088,15 @@ packages:
   quick-format-unescaped@4.0.4:
     resolution: {integrity: sha512-tYC1Q1hgyRuHgloV/YXs2w15unPVh8qfu/qCTfhTYamaw7fyhumKa2yGpdSo87vY32rIclj+4fWYQXUMs9EHvg==}
 
+  react-dom@19.3.0:
+    resolution: {integrity: sha512-JDk8dgif51OjFoDE70+OT9ICyYr+69HlmihNwp1+Nsfbna3t5sIiCa9ZJktDmQ4/1b/rn26hIAR2uYXDMr5r0Q==}
+    peerDependencies:
+      react: ^19.3.0
+
+  react@19.3.0:
+    resolution: {integrity: sha512-E8LUcbtBWt20bbl2YoHfx4ZDBdxVTfOKtCZn9cDSJ4l6/nuoApcpIBcj47t2wZoVX8g2ZHuMHbiShgCR1T5Sog==}
+    engines: {node: '>=0.10.0'}
+
   real-require@0.2.0:
     resolution: {integrity: sha512-57frrGM/OCTLqLOAh0mhVA9VBMHd+9U7Zb2THMGdBUoZVOtGbJzjxsYGDJ3A9AYYCP4hn6y1TVbaOfzWtm5GFg==}
     engines: {node: '>= 12.13.0'}
@@ -1120,6 +1140,9 @@ packages:
   safe-stable-stringify@2.5.0:
     resolution: {integrity: sha512-b3rppTKm9T+PsVCBEOUR46GWI7fdOs00VKZ1+9c1EWDaDMvjQc6tUwuFyIprgGgTcWoVHSKrU8H31ZHA2e0RHA==}
     engines: {node: '>=10'}
+
+  scheduler@0.28.0:
+    resolution: {integrity: sha512-juorfCmIkIw8tT+p5BXSm6PJjQF/ycEYmKyzURCIt/RaZIhL+PulbQ9Yu2z1HdOJDdqDTlxA1+xKBmHXJsczAw==}
 
   secure-json-parse@4.1.0:
     resolution: {integrity: sha512-l4KnYfEyqYJxDwlNVyRfO2E4NTHfMKAWdUuA8J0yve2Dz/E/PdBepY03RvyJpssIpRFwJoCD55wA+mEDs6ByWA==}
@@ -1229,6 +1252,9 @@ packages:
     engines: {node: '>=18.12'}
     peerDependencies:
       typescript: '>=4.8.4'
+
+  tslib@2.8.1:
+    resolution: {integrity: sha512-oJFu94HQb+KVduSUQL7wnpmqnfmLsOA/nAh6b6EH0wCEoK0/mPeXU6c3wKDV83MkOuHPRHtSXKKU99IBazS/2w==}
 
   tsx@4.23.13:
     resolution: {integrity: sha512-BL5MGkRln6aDYhb0xbQlEAGw743BaZYWdbWtdJOBriYJboKgUUYCadFp2/FpBBZquBC/ezNBn7wMMPx7FDZUDw==}
@@ -1348,6 +1374,24 @@ packages:
   zod@3.25.76:
     resolution: {integrity: sha512-gzUt/qt81nXsFGKIFcC3YnfEAx5NkunCfnDlvuBSSFS02bcXu4Lmea0AFIUwbLWxWPx3d9p8S5QoaujKcNQxcQ==}
 
+  zustand@5.0.15:
+    resolution: {integrity: sha512-MpSEjRiBkA9crSYeOUH32rJC7SVqAbm0Fqcqge/bUi2PPoLcBWKOsG+C8mevmpr8TwXHBVkChbbJiyvkE+i/3A==}
+    engines: {node: '>=12.20.0'}
+    peerDependencies:
+      '@types/react': '>=18.0.0'
+      immer: '>=9.0.6'
+      react: '>=18.0.0'
+      use-sync-external-store: '>=1.2.0'
+    peerDependenciesMeta:
+      '@types/react':
+        optional: true
+      immer:
+        optional: true
+      react:
+        optional: true
+      use-sync-external-store:
+        optional: true
+
 snapshots:
 
   '@anthropic-ai/sdk@0.63.0(zod@3.25.76)':
@@ -1357,6 +1401,24 @@ snapshots:
       zod: 3.25.76
 
   '@babel/runtime@7.29.7': {}
+
+  '@dnd-kit/accessibility@3.1.1(react@19.3.0)':
+    dependencies:
+      react: 19.3.0
+      tslib: 2.8.1
+
+  '@dnd-kit/core@6.3.1(react-dom@19.3.0(react@19.3.0))(react@19.3.0)':
+    dependencies:
+      '@dnd-kit/accessibility': 3.1.1(react@19.3.0)
+      '@dnd-kit/utilities': 3.2.2(react@19.3.0)
+      react: 19.3.0
+      react-dom: 19.3.0(react@19.3.0)
+      tslib: 2.8.1
+
+  '@dnd-kit/utilities@3.2.2(react@19.3.0)':
+    dependencies:
+      react: 19.3.0
+      tslib: 2.8.1
 
   '@esbuild/aix-ppc64@0.28.2':
     optional: true
@@ -1532,9 +1594,14 @@ snapshots:
 
   '@jridgewell/sourcemap-codec@1.6.0': {}
 
-  '@mmverick123/lowcode@0.1.0':
+  '@mmverick123/lowcode@0.1.0(@dnd-kit/core@6.3.1(react-dom@19.3.0(react@19.3.0))(react@19.3.0))(dompurify@3.4.15)(react-dom@19.3.0(react@19.3.0))(react@19.3.0)(zustand@5.0.15(react@19.3.0))':
     dependencies:
+      '@dnd-kit/core': 6.3.1(react-dom@19.3.0(react@19.3.0))(react@19.3.0)
       ajv: 8.20.0
+      dompurify: 3.4.15
+      react: 19.3.0
+      react-dom: 19.3.0(react@19.3.0)
+      zustand: 5.0.15(react@19.3.0)
 
   '@napi-rs/lzma-linux-x64-gnu@1.5.1':
     optional: true
@@ -1633,6 +1700,9 @@ snapshots:
   '@types/node@24.13.3':
     dependencies:
       undici-types: 7.18.2
+
+  '@types/trusted-types@2.0.7':
+    optional: true
 
   '@typescript-eslint/eslint-plugin@8.70.0(@typescript-eslint/parser@8.70.0(eslint@9.39.5(supports-color@7.1.0))(supports-color@7.1.0)(typescript@5.9.2))(eslint@9.39.5(supports-color@7.1.0))(supports-color@7.1.0)(typescript@5.9.2)':
     dependencies:
@@ -1881,6 +1951,10 @@ snapshots:
   deep-is@0.1.4: {}
 
   dequal@2.0.3: {}
+
+  dompurify@3.4.15:
+    optionalDependencies:
+      '@types/trusted-types': 2.0.7
 
   eastasianwidth@0.2.0: {}
 
@@ -2277,6 +2351,13 @@ snapshots:
 
   quick-format-unescaped@4.0.4: {}
 
+  react-dom@19.3.0(react@19.3.0):
+    dependencies:
+      react: 19.3.0
+      scheduler: 0.28.0
+
+  react@19.3.0: {}
+
   real-require@0.2.0: {}
 
   real-require@1.0.0: {}
@@ -2332,6 +2413,8 @@ snapshots:
       ret: 0.5.0
 
   safe-stable-stringify@2.5.0: {}
+
+  scheduler@0.28.0: {}
 
   secure-json-parse@4.1.0: {}
 
@@ -2417,6 +2500,8 @@ snapshots:
   ts-api-utils@2.5.0(typescript@5.9.2):
     dependencies:
       typescript: 5.9.2
+
+  tslib@2.8.1: {}
 
   tsx@4.23.13:
     dependencies:
@@ -2535,3 +2620,7 @@ snapshots:
       strip-ansi: 7.2.0
 
   zod@3.25.76: {}
+
+  zustand@5.0.15(react@19.3.0):
+    optionalDependencies:
+      react: 19.3.0

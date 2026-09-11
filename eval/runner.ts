@@ -4,6 +4,7 @@ import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 
 import { validate } from '@exam/lowcode/contract';
+import '../src/config/load-env';
 import { runAgent, type AgentResult } from '../src/application/state-machine';
 import { resolveBundle } from '../src/contracts/bundles';
 import { AnthropicProvider, DeterministicProvider, type AgentProvider, type PlanResult, type ProviderContext } from '../src/providers';

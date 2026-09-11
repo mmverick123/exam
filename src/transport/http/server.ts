@@ -1,11 +1,18 @@
+import path from 'node:path';
+import { fileURLToPath } from 'node:url';
+
 import Fastify, { type FastifyInstance } from 'fastify';
 
+import '../../config/load-env';
 import { UnsupportedContractVersionError } from '../../contracts/bundles';
 import { defaultProvider, type AgentProvider } from '../../providers';
 import { getSession, recordSession } from '../../session/session-store';
 import { runAgent, type AgentRequest } from '../../application/state-machine';
 
-const SERVICE_TOKEN = process.env.AGENT_SERVICE_TOKEN ?? 'agent-dev-token';
+const SERVICE_TOKEN = process.env.AGENT_SERVICE_TOKEN
+  ?? (process.env.NODE_ENV === 'test' ? 'agent-dev-token' : undefined);
+
+if (!SERVICE_TOKEN) throw new Error('AGENT_SERVICE_TOKEN 未配置，请写入 exam-agent/.env.local');
 
 function writeSse(reply: { raw: { write: (chunk: string) => boolean } }, event: string, data: Record<string, unknown>): void {
   reply.raw.write(`event: ${event}\ndata: ${JSON.stringify(data)}\n\n`);
@@ -57,6 +64,7 @@ export function buildAgentServer(providerFactory: () => AgentProvider = defaultP
   return app;
 }
 
-if (process.argv[1] && import.meta.url.endsWith(process.argv[1].replaceAll('\\', '/'))) {
+if (process.argv[1]
+  && path.resolve(fileURLToPath(import.meta.url)) === path.resolve(process.argv[1])) {
   await buildAgentServer().listen({ host: '0.0.0.0', port: Number(process.env.PORT ?? 3000) });
 }
