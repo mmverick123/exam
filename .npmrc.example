@@ -1,0 +1,2 @@
+@exam:registry=https://packages.aliyun.com/<your-project>/npm/<your-repository>/
+//packages.aliyun.com/:_authToken=<your-aliyun-access-token>
