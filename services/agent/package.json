@@ -1,0 +1,35 @@
+{
+  "name": "exam-agent",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "dev": "tsx src/transport/http/server.ts",
+    "cli": "tsx src/transport/cli/main.ts",
+    "lint": "eslint src tests eval --max-warnings 0",
+    "typecheck": "tsc --noEmit",
+    "architecture:check": "tsx scripts/check-architecture.ts agent",
+    "test": "vitest run",
+    "verify": "pnpm lint && pnpm typecheck && pnpm architecture:check && pnpm test",
+    "eval:smoke": "tsx eval/runner.ts --smoke",
+    "eval:full": "tsx eval/runner.ts --full"
+  },
+  "dependencies": {
+    "@anthropic-ai/sdk": "^0.63.0",
+    "@exam/lowcode": "npm:@mmverick123/lowcode@0.1.0",
+    "fastify": "^5.6.1",
+    "lru-cache": "^11.1.0",
+    "zod": "^3.25.76"
+  },
+  "devDependencies": {
+    "@types/node": "^24.3.1",
+    "@typescript-eslint/eslint-plugin": "^8.43.0",
+    "@typescript-eslint/parser": "^8.43.0",
+    "eslint": "^9.35.0",
+    "tsx": "^4.20.5",
+    "typescript": "^5.9.2",
+    "vitest": "^3.2.4"
+  },
+  "engines": {
+    "node": ">=22"
+  }
+}
