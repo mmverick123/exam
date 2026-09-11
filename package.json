@@ -13,7 +13,7 @@
     "verify": "pnpm lint && pnpm typecheck && pnpm architecture:check && pnpm test && pnpm build:web"
   },
   "dependencies": {
-    "@exam/lowcode": "0.1.0",
+    "@exam/lowcode": "npm:@mmverick123/lowcode@0.1.0",
     "fastify": "^5.6.1",
     "react": "^19.1.1",
     "react-dom": "^19.1.1"
