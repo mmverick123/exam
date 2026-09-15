@@ -1,6 +1,7 @@
 import React from 'react';
 
 import { widgetDefinitions } from '../../contract';
+import { useDraggable } from '@dnd-kit/core';
 
 export interface WidgetPanelProps {
   onAdd?: (type: string) => void;
@@ -20,19 +21,15 @@ export function WidgetPanel({ onAdd }: WidgetPanelProps) {
           {widgetDefinitions
             .filter((definition) => definition.componentType === componentType && !definition.internal)
             .map((definition) => (
-              <button
-                type="button"
-                key={definition.type}
-                draggable
-                data-widget-type={definition.type}
-                onDragStart={(event) => event.dataTransfer.setData('application/x-exam-widget', definition.type)}
-                onClick={() => onAdd?.(definition.type)}
-              >
-                {definition.displayName}
-              </button>
+              <DraggableWidget key={definition.type} type={definition.type} onClick={() => onAdd?.(definition.type)}>{definition.displayName}</DraggableWidget>
             ))}
         </section>
       ))}
     </aside>
   );
+}
+
+function DraggableWidget({ type, children, onClick }: { type: string; children: React.ReactNode; onClick?: () => void }) {
+  const { attributes, listeners, setNodeRef, isDragging } = useDraggable({ id: `widget-type:${type}`, data: { kind: 'widget-type', type } });
+  return <button ref={setNodeRef} type="button" draggable={false} className={isDragging ? 'is-dragging' : undefined} onClick={onClick} {...listeners} {...attributes}>{children}</button>;
 }

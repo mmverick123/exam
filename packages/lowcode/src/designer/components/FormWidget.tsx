@@ -1,4 +1,5 @@
 import React from 'react';
+import { useDraggable, useDroppable } from '@dnd-kit/core';
 
 import { containerComponents, fieldComponents } from '../../renderer';
 import { getWidgetDefinition, isContainer, type WidgetNode } from '../../contract';
@@ -13,12 +14,8 @@ export interface FormWidgetProps {
 function DesignerNode({ node, store, selectedId, onSelect }: FormWidgetProps & { node: WidgetNode }) {
   const selected = selectedId === node.id;
   const definition = getWidgetDefinition(node.type);
-  const handleDrop = (event: React.DragEvent<HTMLDivElement>) => {
-    event.preventDefault();
-    const type = event.dataTransfer.getData('application/x-exam-widget');
-    if (!type || !definition?.allowedChildTypes?.includes(type)) return;
-    store.insertNode(type, node.id, null);
-  };
+  const { attributes, listeners, setNodeRef: setDragRef, transform } = useDraggable({ id: `node:${node.id}`, data: { kind: 'node', nodeId: node.id } });
+  const { setNodeRef: setDropRef, isOver } = useDroppable({ id: `drop:${node.id}`, data: { kind: isContainer(node.type) ? 'container' : 'sibling', nodeId: node.id } });
   const content = isContainer(node.type)
     ? (() => {
         const Container = containerComponents[node.type];
@@ -36,14 +33,11 @@ function DesignerNode({ node, store, selectedId, onSelect }: FormWidgetProps & {
         return Field ? <Field node={node} mode="design" value={null} /> : null;
       })();
   return (
-    <div
+    <div ref={(element) => { setDragRef(element); setDropRef(element); }} style={transform ? { transform: `translate3d(${transform.x}px, ${transform.y}px, 0)` } : undefined}
       className={`exam-designer-node${selected ? ' is-selected' : ''}`}
-      data-node-id={node.id}
+      data-node-id={node.id} data-drop-over={isOver || undefined}
+      {...listeners} {...attributes}
       onClick={(event) => { event.stopPropagation(); onSelect(node.id); }}
-      onDragOver={(event) => {
-        if (isContainer(node.type)) event.preventDefault();
-      }}
-      onDrop={handleDrop}
     >
       <div className="exam-designer-node-toolbar">
         <span>{definition?.displayName ?? node.type}</span>

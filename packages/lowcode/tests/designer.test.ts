@@ -94,4 +94,17 @@ describe('designer store and patch application', () => {
     expect(group.widgetList?.map((node) => node.options.name)).toEqual(['essay', 'essay_2']);
     expect(() => applyQuestionPatch(applied.json, { summary: '循环移动', ops: [{ op: 'move', targetId: group.id, parentId: group.widgetList![0]!.id, afterId: null }] })).toThrow(/descendant/);
   });
+
+  it('moves nodes through the Zustand store as one patch and supports redo', () => {
+    const store = createDesignerStore();
+    const pageId = store.getJson().widgetList[0]!.id;
+    const first = store.insertNode('stem', pageId);
+    const second = store.insertNode('divider', pageId, first.id);
+    store.moveNode(first.id, pageId, second.id);
+    expect(store.getJson().widgetList[0]!.widgetList?.map((node) => node.type)).toEqual(['divider', 'stem']);
+    expect(store.undo()).toBe(true);
+    expect(store.getJson().widgetList[0]!.widgetList?.map((node) => node.type)).toEqual(['stem', 'divider']);
+    expect(store.redo()).toBe(true);
+    expect(store.getJson().widgetList[0]!.widgetList?.map((node) => node.type)).toEqual(['divider', 'stem']);
+  });
 });
