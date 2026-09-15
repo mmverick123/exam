@@ -5,6 +5,30 @@ import { buildEmitPatchToolSchema } from '../contracts/tool-schema';
 import { hasContent } from './shared';
 import type { AgentProvider, IntentResult, PlanResult, ProviderContext, ProviderUsage } from './types';
 
+/** Accept JSON wrapped in Markdown fences or surrounded by brief prose. */
+export function parseModelJson<T>(text: string, label: string): T {
+  const normalized = text.trim().replace(/^```(?:json)?\s*/i, '').replace(/\s*```$/i, '').trim();
+  const candidates = [normalized];
+  const firstObject = normalized.indexOf('{');
+  const lastObject = normalized.lastIndexOf('}');
+  if (firstObject >= 0 && lastObject > firstObject) candidates.push(normalized.slice(firstObject, lastObject + 1));
+  for (const candidate of candidates) {
+    try { return JSON.parse(candidate) as T; } catch { /* try the next normalized candidate */ }
+  }
+  throw new Error(`${label} 返回的内容不是有效 JSON`);
+}
+
+export function normalizePlanResult(value: Partial<PlanResult>, context: ProviderContext): PlanResult {
+  const availableTypes = new Set(context.adapter.agentWidgetList().map((widget) => widget.type));
+  const selectedTypes = Array.isArray(value.selectedTypes)
+    ? value.selectedTypes.filter((type): type is string => typeof type === 'string' && availableTypes.has(type))
+    : [];
+  return {
+    steps: Array.isArray(value.steps) ? value.steps.filter((step): step is string => typeof step === 'string') : [],
+    selectedTypes: selectedTypes.length > 0 ? selectedTypes : ['stem', 'single-choice'],
+  };
+}
+
 export class AnthropicProvider implements AgentProvider {
   private readonly client: Anthropic;
   private readonly usage: ProviderUsage = { inputTokens: 0, outputTokens: 0 };
@@ -28,7 +52,7 @@ export class AnthropicProvider implements AgentProvider {
     }, { signal: context.signal });
     this.recordUsage(response.usage);
     const text = response.content.find((block) => block.type === 'text');
-    const parsed = JSON.parse(text?.type === 'text' ? text.text : '{}') as IntentResult;
+    const parsed = parseModelJson<IntentResult>(text?.type === 'text' ? text.text : '{}', 'intent');
     return hasContent(context.outline) && parsed.kind === 'create' ? { ...parsed, kind: 'modify' } : parsed;
   }
 
@@ -41,7 +65,8 @@ export class AnthropicProvider implements AgentProvider {
     }, { signal: context.signal });
     this.recordUsage(response.usage);
     const text = response.content.find((block) => block.type === 'text');
-    return JSON.parse(text?.type === 'text' ? text.text : '{}') as PlanResult;
+    const parsed = parseModelJson<Partial<PlanResult>>(text?.type === 'text' ? text.text : '{}', 'plan');
+    return normalizePlanResult(parsed, context);
   }
 
   async generate(context: ProviderContext, plan: PlanResult): Promise<QuestionPatch> {

@@ -1,4 +1,5 @@
 import React, { useEffect, useMemo, useState } from 'react';
+import { Link, NavLink, useNavigate } from 'react-router-dom';
 
 import { api } from '../services/api';
 
@@ -7,15 +8,17 @@ interface QuestionTypeItem {
   currentVersion: number; publishedVersion: number;
 }
 
+export interface CurrentUser { displayName: string; role: 'admin' | 'user'; }
+
 type StatusFilter = 'all' | 'draft' | 'published';
 
-export function QuestionTypesPage() {
+export function QuestionTypesPage({ user, onLogout }: { user?: CurrentUser; onLogout?: () => void }) {
   const [items, setItems] = useState<QuestionTypeItem[]>([]);
-  const [name, setName] = useState('新的题型');
+  const [name, setName] = useState('');
   const [query, setQuery] = useState('');
   const [statusFilter, setStatusFilter] = useState<StatusFilter>('all');
   const [creating, setCreating] = useState(false);
-  const [error, setError] = useState('');
+  const navigate = useNavigate();
   const load = () => api<QuestionTypeItem[]>('/api/question-types').then(setItems);
   useEffect(() => { void load(); }, []);
 
@@ -32,47 +35,30 @@ export function QuestionTypesPage() {
     });
   }, [items, query, statusFilter]);
 
-  const createQuestionType = async (event: React.FormEvent) => {
+  const createQuestionType = (event: React.FormEvent) => {
     event.preventDefault();
-    if (!name.trim() || creating) return;
+    if (creating) return;
     setCreating(true);
-    setError('');
-    try {
-      await api('/api/question-types', { method: 'POST', body: JSON.stringify({ name: name.trim() }) });
-      await load();
-      setName('新的题型');
-    } catch (createError) {
-      setError(`创建失败：${String(createError)}`);
-    } finally {
-      setCreating(false);
-    }
+    const query = name.trim() ? `?name=${encodeURIComponent(name.trim())}` : '';
+    navigate(`/admin/question-types/new${query}`);
   };
 
   return (
-    <div className="catalog-page">
-      <header className="catalog-topbar">
-        <a className="catalog-brand" href="/question-types" aria-label="Exam Studio 首页">
-          <span className="design-brand-mark">E</span>
-          <span><strong>Exam Studio</strong><small>智能题型编排平台</small></span>
-        </a>
-        <nav className="catalog-nav" aria-label="主导航"><a className="is-active" href="/question-types">题型管理</a></nav>
-        <div className="catalog-runtime"><span />服务运行中</div>
-      </header>
-
-      <main className="catalog-content">
+    <div className="app-shell">
+      <aside className="app-sidebar"><Link className="sidebar-brand" to="/admin/question-types" aria-label="Exam Studio 首页"><span className="design-brand-mark">E</span><span><strong>Exam Studio</strong><small>智能题型编排平台</small></span></Link><nav className="sidebar-nav" aria-label="管理导航"><NavLink className="is-active" to="/admin/question-types">题型管理</NavLink><NavLink to="/admin/projects">项目管理</NavLink></nav><div className="sidebar-bottom"><div className="sidebar-user"><span className="catalog-user-avatar">{user?.displayName?.charAt(0) || '管'}</span><span>{user?.displayName || '管理员'}</span></div><button type="button" onClick={onLogout}>退出登录</button></div></aside>
+      <main className="app-main"><div className="catalog-content">
         <section className="catalog-hero">
           <div>
             <span className="catalog-kicker">QUESTION TYPE LIBRARY</span>
             <h1>题型管理</h1>
             <p>创建、设计并发布可复用的智能题型。</p>
           </div>
-          <form className="catalog-create" onSubmit={(event) => void createQuestionType(event)}>
+          <form className="catalog-create" onSubmit={createQuestionType}>
             <label htmlFor="question-type-name">新建题型</label>
             <div>
-              <input id="question-type-name" value={name} onChange={(event) => setName(event.target.value)} placeholder="输入题型名称" />
-              <button type="submit" disabled={creating || !name.trim()}>{creating ? '创建中…' : <><span>＋</span> 创建题型</>}</button>
+              <input id="question-type-name" value={name} onChange={(event) => setName(event.target.value)} placeholder="输入题型名称（点击创建进入向导）" />
+              <button type="submit" disabled={creating}>{creating ? '打开中…' : <><span>＋</span> 创建题型</>}</button>
             </div>
-            {error ? <p role="alert">{error}</p> : null}
           </form>
         </section>
 
@@ -106,7 +92,7 @@ export function QuestionTypesPage() {
                     <td><span className="subject-chip">{item.subject || '通用'}</span></td>
                     <td><div className="version-cell"><strong>v{item.currentVersion}</strong><span>已发布 v{item.publishedVersion}</span></div></td>
                     <td><span className={`catalog-state${isDraft ? ' is-draft' : ' is-published'}`}><i />{isDraft ? '待发布' : '已同步'}</span></td>
-                    <td><div className="catalog-row-actions"><a className="catalog-design-link" href={`/question-types/${item.id}/design`}>打开设计器 <span>→</span></a>{item.publishedVersion > 0 ? <a className="catalog-preview-link" href={`/exam/${item.code}`}>预览</a> : null}</div></td>
+                    <td><div className="catalog-row-actions"><Link className="catalog-preview-link" to={`/admin/question-types/${item.id}/preview`}>预览</Link><Link className="catalog-design-link" to={`/admin/question-types/${item.id}/edit`}>编辑 <span>→</span></Link></div></td>
                   </tr>;
                 })}</tbody>
               </table>
@@ -115,7 +101,7 @@ export function QuestionTypesPage() {
             <div className="catalog-empty"><span>⌕</span><strong>没有找到匹配的题型</strong><p>尝试更换搜索词或筛选条件。</p><button type="button" onClick={() => { setQuery(''); setStatusFilter('all'); }}>清除筛选</button></div>
           )}
         </section>
-      </main>
+      </div></main>
     </div>
   );
 }

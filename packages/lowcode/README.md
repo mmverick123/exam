@@ -23,4 +23,4 @@ pnpm release:npm
 
 首次发布前需要确认 GitHub 用户 `mmverick123` 对仓库有写权限，并创建带 `write:packages` 的 GitHub PAT。通过用户级 npm 配置使用 `https://npm.pkg.github.com/`；不得把 token 写入仓库。`pnpm pack:local` 仅用于发布内容预检。
 
-发布成功后，消费项目使用 `pnpm add @exam/lowcode@npm:@mmverick123/lowcode@0.1.0 --save-exact` 从 GitHub Packages 安装。升级必须先发布新版本，再显式更新消费端版本和 lockfile。
+发布成功后，消费项目使用 `pnpm add @exam/lowcode@npm:@mmverick123/lowcode@0.1.1 --save-exact` 从 GitHub Packages 安装。升级必须先发布新版本，再显式更新消费端版本和 lockfile。

@@ -5,11 +5,11 @@ import { QuestionRenderer, type QuestionRendererHandle } from '@exam/lowcode/ren
 
 interface ExamPayload { version: number; json: QuestionJson; }
 
-export function ExamPage({ code }: { code: string }) {
+export function ExamPage({ code, projectId, questionId }: { code?: string; projectId?: string; questionId?: string }) {
   const [exam, setExam] = useState<ExamPayload | null>(null);
   const [message, setMessage] = useState('');
   const rendererRef = useRef<QuestionRendererHandle>(null);
-  useEffect(() => { void fetch(`/api/exam/${code}`).then((response) => response.json()).then(setExam); }, [code]);
+  useEffect(() => { const endpoint = projectId && questionId ? `/api/projects/${projectId}/questions/${questionId}` : `/api/exam/${code}`; void fetch(endpoint, { credentials: 'include' }).then((response) => response.json()).then(setExam); }, [code, projectId, questionId]);
   if (!exam) return <main className="platform-page">加载中…</main>;
   const submit = async () => {
     const response = await fetch(`/api/exam/${code}/answers`, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ version: exam.version, answerData: rendererRef.current?.getAnswerData() ?? {} }) });

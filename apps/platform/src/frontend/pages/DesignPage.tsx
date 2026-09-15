@@ -1,4 +1,5 @@
 import React, { useEffect, useRef, useState } from 'react';
+import { Link } from 'react-router-dom';
 
 import { CONTRACT_VERSION, outlineForAgent, type QuestionJson, type QuestionPatch } from '@exam/lowcode/contract';
 import { QuestionDesigner, createDesignerStore, type DesignerStore } from '@exam/lowcode/designer';
@@ -6,9 +7,20 @@ import { api, platformToken } from '../services/api';
 
 interface Detail { id: number; name: string; currentVersion: number; publishedVersion: number; formJson: QuestionJson; }
 
+function errorMessage(error: unknown): string {
+  const raw = error instanceof Error ? error.message : String(error);
+  try {
+    const payload = JSON.parse(raw) as { error?: string; message?: string };
+    if (payload.message) return payload.message;
+    if (payload.error) return payload.error;
+  } catch { /* keep the original response when it is not JSON */ }
+  return raw.replace(/^Error:\s*/, '');
+}
+
 export function DesignPage({ id }: { id: string }) {
   const [detail, setDetail] = useState<Detail | null>(null);
   const [message, setMessage] = useState('');
+  const [publishError, setPublishError] = useState<string | null>(null);
   const [chatInput, setChatInput] = useState('');
   const [chatLog, setChatLog] = useState<string[]>([]);
   const [pendingPatch, setPendingPatch] = useState<QuestionPatch | null>(null);
@@ -18,6 +30,11 @@ export function DesignPage({ id }: { id: string }) {
   const storeRef = useRef<DesignerStore | null>(null);
   useEffect(() => { void api<Detail>(`/api/question-types/${id}`).then((value) => { storeRef.current = createDesignerStore(value.formJson); setDetail(value); }); }, [id]);
   useEffect(() => () => abortRef.current?.abort(), []);
+  useEffect(() => {
+    if (!publishError) return;
+    const timer = window.setTimeout(() => setPublishError(null), 5000);
+    return () => window.clearTimeout(timer);
+  }, [publishError]);
   if (!detail || !storeRef.current) return <main className="platform-page">加载中…</main>;
   const store = storeRef.current;
   const save = async () => {
@@ -25,8 +42,9 @@ export function DesignPage({ id }: { id: string }) {
     setDetail({ ...detail, currentVersion: saved.version }); setMessage(`已保存 v${saved.version}`);
   };
   const publish = async () => {
+    setPublishError(null);
     try { await api(`/api/question-types/${id}/publish`, { method: 'POST', body: JSON.stringify({ version: detail.currentVersion }) }); setDetail({ ...detail, publishedVersion: detail.currentVersion }); setMessage('发布成功'); }
-    catch (error) { setMessage(`发布失败：${String(error)}`); }
+    catch (error) { setMessage(''); setPublishError(`发布失败：${errorMessage(error)}`); }
   };
   const cancelChat = () => { abortRef.current?.abort(); abortRef.current = null; setChatBusy(false); setChatLog((items) => [...items, '已取消']); };
   const sendChat = async () => {
@@ -57,9 +75,10 @@ export function DesignPage({ id }: { id: string }) {
   const applyPending = () => { if (!pendingPatch) return; try { store.applyPatch(pendingPatch); setPendingPatch(null); setChatLog((items) => [...items, '补丁已应用（可使用一次撤销完整回退）']); } catch (error) { setChatLog((items) => [...items, `应用失败：${String(error)}`]); } };
   return (
     <div className="design-page">
+      {publishError ? <div className="design-toast is-error" role="alert"><span className="design-toast-icon">!</span><span>{publishError}</span><button type="button" aria-label="关闭提示" onClick={() => setPublishError(null)}>×</button></div> : null}
       <header className="design-app-header">
         <div className="design-title-group">
-          <a className="design-back" href="/question-types" aria-label="返回题型列表">←</a>
+          <Link className="design-back" to="/admin/question-types" aria-label="返回题型列表">←</Link>
           <div className="design-brand-mark">E</div>
           <div>
             <div className="design-eyebrow">EXAM STUDIO · 题型设计器</div>

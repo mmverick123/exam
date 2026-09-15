@@ -13,10 +13,12 @@
     "verify": "pnpm lint && pnpm typecheck && pnpm architecture:check && pnpm test && pnpm build:web"
   },
   "dependencies": {
-    "@exam/lowcode": "npm:@mmverick123/lowcode@0.1.0",
+    "@exam/lowcode": "npm:@mmverick123/lowcode@0.1.1",
     "fastify": "^5.6.1",
+    "mysql2": "^3.24.4",
     "react": "^19.1.1",
-    "react-dom": "^19.1.1"
+    "react-dom": "^19.1.1",
+    "react-router-dom": "^7.18.3"
   },
   "devDependencies": {
     "@types/node": "^24.3.1",

@@ -42,7 +42,7 @@ docker compose up --build
 
 打开 `http://localhost:8088`。Caddy 托管前端并把 `/api/*` 转发至 Platform；Platform 使用 raw stream 反代 Agent；Agent 逐事件发送 SSE。三层均关闭响应缓冲，Agent 与 MySQL 只在 Compose 内网暴露。
 
-当前 Platform 的运行时仓储仍是内存实现，Compose 中 MySQL 会按 `schema.sql` 初始化，用于验证目标拓扑与后续 repository 替换边界；进程重启后业务数据不会从 MySQL 恢复。
+Platform 运行时使用 MySQL 持久化仓储，启动时按 `apps/platform/schema.sql` 初始化表结构与默认账号；题目、版本、项目权限、Session 和答案记录会在进程重启后从 MySQL 恢复。
 
 ## npm 发布与消费
 
