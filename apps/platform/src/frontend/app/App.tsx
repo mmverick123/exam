@@ -9,6 +9,7 @@ import { ProjectQuestionsPage } from '../pages/ProjectQuestionsPage';
 import { QuestionTypeWizardPage } from '../pages/QuestionTypeWizardPage';
 import { AdminPreviewPage } from '../pages/AdminPreviewPage';
 import { AdminProjectsPage } from '../pages/AdminProjectsPage';
+import { ProjectMembersPage } from '../pages/ProjectMembersPage';
 import { api } from '../services/api';
 
 function RoleGate({ user, role }: { user: CurrentUser; role: 'admin' | 'user' }) {
@@ -48,7 +49,7 @@ function AppRoutes({ user, onLogout }: { user: CurrentUser; onLogout: () => void
       <Route path="/admin/question-types/:id/edit" element={<DesignPageRoute />} />
       <Route path="/question-types/:id/design" element={<DesignPageRoute />} />
       <Route path="/admin/projects" element={<AdminProjectsPage user={user} onLogout={onLogout} />} />
-      <Route path="/admin/projects/:id/members" element={<AdminProjectsPage user={user} onLogout={onLogout} />} />
+      <Route path="/admin/projects/:id/members" element={<ProjectMembersPage user={user} onLogout={onLogout} />} />
     </Route>
     <Route element={<RoleGate user={user} role="user" />}>
       <Route path="/projects" element={<ProjectsPage user={user} onLogout={onLogout} />} />

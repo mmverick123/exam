@@ -5,7 +5,6 @@ import type { ContainerProps } from '../../model/types';
 export function QuestionGroupContainer({ node, children }: ContainerProps) {
   const indexedChildren = React.Children.map(children, (child, index) => (
     <div className="exam-question-group-item" data-index={index + 1}>
-      {node.options.showIndex !== false ? <span className="exam-question-index">{index + 1}.</span> : null}
       {child}
     </div>
   ));

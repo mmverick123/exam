@@ -8,7 +8,7 @@ interface QuestionTypeItem {
   currentVersion: number; publishedVersion: number;
 }
 
-export interface CurrentUser { displayName: string; role: 'admin' | 'user'; }
+export interface CurrentUser { id?: number; displayName: string; role: 'admin' | 'user'; }
 
 type StatusFilter = 'all' | 'draft' | 'published';
 

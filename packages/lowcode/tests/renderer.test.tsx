@@ -32,7 +32,7 @@ describe('renderer component registry and answer model', () => {
     json.widgetList[0]!.widgetList!.push({
       type: 'question-group',
       id: 'group',
-      options: { title: '', showIndex: true, gap: 16 },
+      options: { title: '', gap: 16 },
       widgetList: [
         {
           type: 'fill-blank',

@@ -150,14 +150,12 @@ const definitions = [
     allowedChildTypes: [...leafTypes],
     defaultOptions: {
       title: '',
-      showIndex: true,
       gap: 16,
     },
     optionsSchema: {
       type: 'object',
       properties: {
         title: titleProperty,
-        showIndex: { type: 'boolean', 'x-ui': { widget: 'switch' } },
         gap: {
           type: 'number',
           minimum: 4,

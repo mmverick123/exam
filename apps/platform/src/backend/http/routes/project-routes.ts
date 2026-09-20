@@ -5,6 +5,11 @@ import { requireRole, requireUser } from '../middleware/auth';
 import { PlatformError } from '../../domain/question-type-store';
 
 export function registerProjectRoutes(app: FastifyInstance, access: PlatformAccessStore, questions: QuestionTypeStore): void {
+  const requireProjectManager = async (request: Parameters<typeof requireUser>[0], projectId: number) => {
+    const user = requireUser(request);
+    if (!await access.hasProjectPermissionAsync(user, projectId, 'manage')) throw new PlatformError(403, 'FORBIDDEN');
+    return user;
+  };
   app.get('/api/projects', async (request) => access.listProjectsForUserAsync(requireUser(request)));
 
   app.post<{ Body: { name?: string; description?: string; questionTypeIds?: number[]; answerUserIds?: number[] } }>('/api/admin/projects', async (request, reply) => {
@@ -17,8 +22,9 @@ export function registerProjectRoutes(app: FastifyInstance, access: PlatformAcce
   app.get('/api/admin/users', async (request) => { requireRole(request, 'admin'); return access.listUsers(); });
 
   app.get<{ Params: { id: string } }>('/api/admin/projects/:id', async (request) => {
-    requireRole(request, 'admin');
-    const project = await access.getProjectAsync(Number(request.params.id));
+    const projectId = Number(request.params.id);
+    await requireProjectManager(request, projectId);
+    const project = await access.getProjectAsync(projectId);
     if (!project) throw new PlatformError(404, 'PROJECT_NOT_FOUND');
     return { ...project, members: await access.listMembersAsync(project.id), questionIds: await access.listQuestionIdsForProjectAsync(project.id) };
   });
@@ -34,18 +40,36 @@ export function registerProjectRoutes(app: FastifyInstance, access: PlatformAcce
 
   app.get<{ Params: { id: string } }>('/api/admin/projects/:id/members', async (request) => {
     const id = Number(request.params.id);
-    requireRole(request, 'admin');
+    await requireProjectManager(request, id);
     if (!await access.getProjectAsync(id)) throw new PlatformError(404, 'PROJECT_NOT_FOUND');
     return access.listMembersAsync(id);
   });
 
   app.post<{ Params: { id: string }; Body: { userId?: number; permission?: 'manage' | 'answer' } }>('/api/admin/projects/:id/members', async (request, reply) => {
-    requireRole(request, 'admin');
     const projectId = Number(request.params.id);
+    await requireProjectManager(request, projectId);
     if (!await access.getProjectAsync(projectId)) throw new PlatformError(404, 'PROJECT_NOT_FOUND');
     if (!request.body?.userId || !request.body.permission || !await access.getUserAsync(request.body.userId)) throw new PlatformError(400, 'INVALID_MEMBER');
     await access.setMemberAsync(projectId, request.body.userId, request.body.permission);
     return reply.code(201).send({ assigned: true });
+  });
+
+  app.patch<{ Params: { id: string; userId: string }; Body: { permission?: 'manage' | 'answer' } }>('/api/admin/projects/:id/members/:userId', async (request) => {
+    const projectId = Number(request.params.id);
+    const userId = Number(request.params.userId);
+    await requireProjectManager(request, projectId);
+    if (!await access.getProjectAsync(projectId) || !Number.isInteger(userId) || !request.body?.permission || !await access.getUserAsync(userId)) throw new PlatformError(400, 'INVALID_MEMBER');
+    await access.setMemberAsync(projectId, userId, request.body.permission);
+    return { updated: true };
+  });
+
+  app.delete<{ Params: { id: string; userId: string } }>('/api/admin/projects/:id/members/:userId', async (request) => {
+    const projectId = Number(request.params.id);
+    const userId = Number(request.params.userId);
+    await requireProjectManager(request, projectId);
+    if (!await access.getProjectAsync(projectId) || !Number.isInteger(userId) || !await access.getUserAsync(userId)) throw new PlatformError(400, 'INVALID_MEMBER');
+    await access.removeMemberAsync(projectId, userId);
+    return { removed: true };
   });
 
   app.get<{ Params: { id: string } }>('/api/projects/:id/questions', async (request) => {

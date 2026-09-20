@@ -176,6 +176,8 @@ export class PlatformAccessStore {
     if (index >= 0) this.members.splice(index, 1);
   }
 
+  async removeMemberAsync(projectId: number, userId: number): Promise<void> { if (!this.pool) return this.removeMember(projectId, userId); await this.pool.execute('DELETE FROM project_members WHERE project_id=? AND user_id=?', [projectId, userId]); }
+
   listMembers(projectId: number): Array<SessionUser & { permission: ProjectPermission }> {
     return this.members.filter((member) => member.projectId === projectId).flatMap((member) => {
       const user = this.getUser(member.userId);

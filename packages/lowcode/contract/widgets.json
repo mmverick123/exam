@@ -45,7 +45,6 @@
       ],
       "defaultOptions": {
         "title": "",
-        "showIndex": true,
         "gap": 16
       }
     },
