@@ -52,6 +52,7 @@ export interface WidgetDefinition {
   displayName: string;
   aiHint: string;
   componentType: ComponentType;
+  libraryGroup?: 'exam' | 'form';
   allowedChildTypes?: string[];
   internal?: boolean;
   agentExcluded?: boolean;

@@ -11,6 +11,13 @@ import {
 import {
   DividerWidget,
   EssayWidget,
+  FormCheckboxWidget,
+  FormDateWidget,
+  FormInputWidget,
+  FormRadioWidget,
+  FormSelectWidget,
+  FormSwitchWidget,
+  FormTextareaWidget,
   FillBlankWidget,
   ImageWidget,
   JudgeWidget,
@@ -38,6 +45,13 @@ export const fieldComponents: Record<string, React.FC<FieldProps>> = {
   judge: JudgeWidget,
   'fill-blank': FillBlankWidget,
   essay: EssayWidget,
+  'form-input': FormInputWidget,
+  'form-textarea': FormTextareaWidget,
+  'form-select': FormSelectWidget,
+  'form-radio': FormRadioWidget,
+  'form-checkbox': FormCheckboxWidget,
+  'form-switch': FormSwitchWidget,
+  'form-date': FormDateWidget,
 };
 
 export const containerComponents: Record<string, React.FC<ContainerProps>> = {

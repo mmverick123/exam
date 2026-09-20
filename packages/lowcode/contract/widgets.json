@@ -15,7 +15,14 @@
         "multi-choice",
         "judge",
         "fill-blank",
-        "essay"
+        "essay",
+        "form-input",
+        "form-textarea",
+        "form-select",
+        "form-radio",
+        "form-checkbox",
+        "form-switch",
+        "form-date"
       ],
       "internal": true,
       "agentExcluded": true,
@@ -173,6 +180,114 @@
         "maxLength": 2000,
         "placeholder": "",
         "rows": 6
+      }
+    },
+    {
+      "type": "form-input",
+      "displayName": "单行输入",
+      "aiHint": "问卷中的单行文本输入项，适合姓名、邮箱、电话等短文本。",
+      "componentType": "ANSWER_COMPONENT",
+      "answerType": "string",
+      "defaultOptions": {
+        "title": "",
+        "name": "text_input",
+        "defaultValue": null,
+        "labelPosition": "inherit",
+        "placeholder": "请输入",
+        "maxLength": 200,
+        "width": 420
+      }
+    },
+    {
+      "type": "form-textarea",
+      "displayName": "多行输入",
+      "aiHint": "问卷中的多行文本输入项，适合意见、建议和详细描述。",
+      "componentType": "ANSWER_COMPONENT",
+      "answerType": "string",
+      "defaultOptions": {
+        "title": "",
+        "name": "textarea",
+        "defaultValue": null,
+        "labelPosition": "inherit",
+        "placeholder": "请输入",
+        "maxLength": 2000,
+        "rows": 5
+      }
+    },
+    {
+      "type": "form-select",
+      "displayName": "下拉选择",
+      "aiHint": "问卷中的单项下拉选择，选项 value 是不可变标识。",
+      "componentType": "ANSWER_COMPONENT",
+      "answerType": "string",
+      "defaultOptions": {
+        "title": "",
+        "name": "select",
+        "defaultValue": null,
+        "labelPosition": "inherit",
+        "optionItems": [],
+        "placeholder": "请选择",
+        "width": 280
+      }
+    },
+    {
+      "type": "form-radio",
+      "displayName": "单选项",
+      "aiHint": "问卷中的单项选择，适合满意度、类型和偏好等互斥选项。",
+      "componentType": "ANSWER_COMPONENT",
+      "answerType": "string",
+      "defaultOptions": {
+        "title": "",
+        "name": "radio",
+        "defaultValue": null,
+        "labelPosition": "inherit",
+        "optionItems": [],
+        "optionsLayout": "vertical"
+      }
+    },
+    {
+      "type": "form-checkbox",
+      "displayName": "多选项",
+      "aiHint": "问卷中的多项选择，适合兴趣、技能和可接受条件等非互斥选项。",
+      "componentType": "ANSWER_COMPONENT",
+      "answerType": "string[]",
+      "defaultOptions": {
+        "title": "",
+        "name": "checkbox",
+        "defaultValue": null,
+        "labelPosition": "inherit",
+        "optionItems": [],
+        "optionsLayout": "vertical"
+      }
+    },
+    {
+      "type": "form-switch",
+      "displayName": "开关",
+      "aiHint": "问卷中的二值开关，适合是否同意、是否订阅等问题。",
+      "componentType": "ANSWER_COMPONENT",
+      "answerType": "boolean",
+      "defaultOptions": {
+        "title": "",
+        "name": "switch",
+        "defaultValue": null,
+        "labelPosition": "inherit",
+        "activeLabel": "是",
+        "inactiveLabel": "否"
+      }
+    },
+    {
+      "type": "form-date",
+      "displayName": "日期选择",
+      "aiHint": "问卷中的日期选择，答案使用 YYYY-MM-DD 字符串。",
+      "componentType": "ANSWER_COMPONENT",
+      "answerType": "string",
+      "defaultOptions": {
+        "title": "",
+        "name": "date",
+        "defaultValue": null,
+        "labelPosition": "inherit",
+        "placeholder": "请选择日期",
+        "width": 220
       }
     }
   ]

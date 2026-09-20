@@ -54,12 +54,14 @@ pnpm release:lowcode
 
 发布前置脚本会执行完整 `verify`；发布目标为 GitHub Packages `https://npm.pkg.github.com/`。发布账号需要 `write:packages` 权限，凭据通过用户级 token 配置注入，不进入仓库；各工程提供 `.npmrc.example` 模板。
 
-发布完成后，两个消费工程分别执行：
+发布完成后，两个消费工程分别执行（版本必须替换为刚发布的版本）：
 
 ```bash
-pnpm --dir services/agent add @exam/lowcode@npm:@mmverick123/lowcode@0.1.0 --save-exact
-pnpm --dir apps/platform add @exam/lowcode@npm:@mmverick123/lowcode@0.1.0 --save-exact
+pnpm --dir services/agent add @exam/lowcode@npm:@mmverick123/lowcode@<version> --save-exact
+pnpm --dir apps/platform add @exam/lowcode@npm:@mmverick123/lowcode@<version> --save-exact
 ```
+
+发布目标仓库是当前 `mmverick123/exam`，不是已迁移前的 `exam-lowcode-lib`。版本递增、契约快照、发布顺序和 lockfile 同步的可复用流程见 `.codex/skills/lowcode-release/SKILL.md`。
 
 源码仍从兼容 alias `@exam/lowcode/contract`、`@exam/lowcode/renderer`、`@exam/lowcode/designer` 三个子路径 import；实际 GitHub Packages 包是 `@mmverick123/lowcode`。根目录关闭 workspace 自动链接，Agent、Platform 和 Docker 构建均从 GitHub Packages 安装发布版本。
 

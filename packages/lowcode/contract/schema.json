@@ -808,6 +808,633 @@
         "name"
       ],
       "additionalProperties": false
+    },
+    "form-input": {
+      "type": "object",
+      "properties": {
+        "title": {
+          "type": "string",
+          "x-ui": {
+            "widget": "input"
+          }
+        },
+        "name": {
+          "type": "string",
+          "pattern": "^[a-zA-Z0-9_]+$",
+          "x-ui": {
+            "widget": "input"
+          }
+        },
+        "defaultValue": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "x-ui": {
+            "widget": "hidden"
+          }
+        },
+        "labelPosition": {
+          "type": "string",
+          "enum": [
+            "inherit",
+            "top",
+            "left"
+          ],
+          "x-ui": {
+            "widget": "radio-group",
+            "options": [
+              {
+                "label": "继承表单",
+                "value": "inherit"
+              },
+              {
+                "label": "顶部",
+                "value": "top"
+              },
+              {
+                "label": "左侧",
+                "value": "left"
+              }
+            ]
+          }
+        },
+        "placeholder": {
+          "type": "string",
+          "x-ui": {
+            "widget": "input"
+          }
+        },
+        "maxLength": {
+          "type": "number",
+          "minimum": 1,
+          "maximum": 2000,
+          "x-ui": {
+            "widget": "number",
+            "min": 1,
+            "max": 2000
+          }
+        },
+        "width": {
+          "type": "number",
+          "minimum": 120,
+          "maximum": 720,
+          "x-ui": {
+            "widget": "number",
+            "min": 120,
+            "max": 720
+          }
+        }
+      },
+      "required": [
+        "name"
+      ],
+      "additionalProperties": false
+    },
+    "form-textarea": {
+      "type": "object",
+      "properties": {
+        "title": {
+          "type": "string",
+          "x-ui": {
+            "widget": "input"
+          }
+        },
+        "name": {
+          "type": "string",
+          "pattern": "^[a-zA-Z0-9_]+$",
+          "x-ui": {
+            "widget": "input"
+          }
+        },
+        "defaultValue": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "x-ui": {
+            "widget": "hidden"
+          }
+        },
+        "labelPosition": {
+          "type": "string",
+          "enum": [
+            "inherit",
+            "top",
+            "left"
+          ],
+          "x-ui": {
+            "widget": "radio-group",
+            "options": [
+              {
+                "label": "继承表单",
+                "value": "inherit"
+              },
+              {
+                "label": "顶部",
+                "value": "top"
+              },
+              {
+                "label": "左侧",
+                "value": "left"
+              }
+            ]
+          }
+        },
+        "placeholder": {
+          "type": "string",
+          "x-ui": {
+            "widget": "input"
+          }
+        },
+        "maxLength": {
+          "type": "number",
+          "minimum": 1,
+          "maximum": 10000,
+          "x-ui": {
+            "widget": "number",
+            "min": 1,
+            "max": 10000
+          }
+        },
+        "rows": {
+          "type": "number",
+          "minimum": 2,
+          "maximum": 16,
+          "x-ui": {
+            "widget": "number",
+            "min": 2,
+            "max": 16
+          }
+        }
+      },
+      "required": [
+        "name"
+      ],
+      "additionalProperties": false
+    },
+    "form-select": {
+      "type": "object",
+      "properties": {
+        "title": {
+          "type": "string",
+          "x-ui": {
+            "widget": "input"
+          }
+        },
+        "name": {
+          "type": "string",
+          "pattern": "^[a-zA-Z0-9_]+$",
+          "x-ui": {
+            "widget": "input"
+          }
+        },
+        "defaultValue": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "x-ui": {
+            "widget": "hidden"
+          }
+        },
+        "labelPosition": {
+          "type": "string",
+          "enum": [
+            "inherit",
+            "top",
+            "left"
+          ],
+          "x-ui": {
+            "widget": "radio-group",
+            "options": [
+              {
+                "label": "继承表单",
+                "value": "inherit"
+              },
+              {
+                "label": "顶部",
+                "value": "top"
+              },
+              {
+                "label": "左侧",
+                "value": "left"
+              }
+            ]
+          }
+        },
+        "optionItems": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "label": {
+                "type": "string"
+              },
+              "value": {
+                "type": "string"
+              }
+            },
+            "required": [
+              "label",
+              "value"
+            ],
+            "additionalProperties": false
+          },
+          "x-ui": {
+            "widget": "option-editor"
+          }
+        },
+        "placeholder": {
+          "type": "string",
+          "x-ui": {
+            "widget": "input"
+          }
+        },
+        "width": {
+          "type": "number",
+          "minimum": 120,
+          "maximum": 720,
+          "x-ui": {
+            "widget": "number",
+            "min": 120,
+            "max": 720
+          }
+        }
+      },
+      "required": [
+        "name"
+      ],
+      "additionalProperties": false
+    },
+    "form-radio": {
+      "type": "object",
+      "properties": {
+        "title": {
+          "type": "string",
+          "x-ui": {
+            "widget": "input"
+          }
+        },
+        "name": {
+          "type": "string",
+          "pattern": "^[a-zA-Z0-9_]+$",
+          "x-ui": {
+            "widget": "input"
+          }
+        },
+        "defaultValue": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "x-ui": {
+            "widget": "hidden"
+          }
+        },
+        "labelPosition": {
+          "type": "string",
+          "enum": [
+            "inherit",
+            "top",
+            "left"
+          ],
+          "x-ui": {
+            "widget": "radio-group",
+            "options": [
+              {
+                "label": "继承表单",
+                "value": "inherit"
+              },
+              {
+                "label": "顶部",
+                "value": "top"
+              },
+              {
+                "label": "左侧",
+                "value": "left"
+              }
+            ]
+          }
+        },
+        "optionItems": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "label": {
+                "type": "string"
+              },
+              "value": {
+                "type": "string"
+              }
+            },
+            "required": [
+              "label",
+              "value"
+            ],
+            "additionalProperties": false
+          },
+          "x-ui": {
+            "widget": "option-editor"
+          }
+        },
+        "optionsLayout": {
+          "type": "string",
+          "enum": [
+            "vertical",
+            "horizontal"
+          ],
+          "description": "Default: vertical",
+          "x-ui": {
+            "widget": "radio-group",
+            "options": [
+              {
+                "label": "纵向",
+                "value": "vertical"
+              },
+              {
+                "label": "横向",
+                "value": "horizontal"
+              }
+            ]
+          }
+        }
+      },
+      "required": [
+        "name"
+      ],
+      "additionalProperties": false
+    },
+    "form-checkbox": {
+      "type": "object",
+      "properties": {
+        "title": {
+          "type": "string",
+          "x-ui": {
+            "widget": "input"
+          }
+        },
+        "name": {
+          "type": "string",
+          "pattern": "^[a-zA-Z0-9_]+$",
+          "x-ui": {
+            "widget": "input"
+          }
+        },
+        "defaultValue": {
+          "anyOf": [
+            {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "x-ui": {
+            "widget": "hidden"
+          }
+        },
+        "labelPosition": {
+          "type": "string",
+          "enum": [
+            "inherit",
+            "top",
+            "left"
+          ],
+          "x-ui": {
+            "widget": "radio-group",
+            "options": [
+              {
+                "label": "继承表单",
+                "value": "inherit"
+              },
+              {
+                "label": "顶部",
+                "value": "top"
+              },
+              {
+                "label": "左侧",
+                "value": "left"
+              }
+            ]
+          }
+        },
+        "optionItems": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "label": {
+                "type": "string"
+              },
+              "value": {
+                "type": "string"
+              }
+            },
+            "required": [
+              "label",
+              "value"
+            ],
+            "additionalProperties": false
+          },
+          "x-ui": {
+            "widget": "option-editor"
+          }
+        },
+        "optionsLayout": {
+          "type": "string",
+          "enum": [
+            "vertical",
+            "horizontal"
+          ],
+          "description": "Default: vertical",
+          "x-ui": {
+            "widget": "radio-group",
+            "options": [
+              {
+                "label": "纵向",
+                "value": "vertical"
+              },
+              {
+                "label": "横向",
+                "value": "horizontal"
+              }
+            ]
+          }
+        }
+      },
+      "required": [
+        "name"
+      ],
+      "additionalProperties": false
+    },
+    "form-switch": {
+      "type": "object",
+      "properties": {
+        "title": {
+          "type": "string",
+          "x-ui": {
+            "widget": "input"
+          }
+        },
+        "name": {
+          "type": "string",
+          "pattern": "^[a-zA-Z0-9_]+$",
+          "x-ui": {
+            "widget": "input"
+          }
+        },
+        "defaultValue": {
+          "anyOf": [
+            {
+              "type": "boolean"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "x-ui": {
+            "widget": "hidden"
+          }
+        },
+        "labelPosition": {
+          "type": "string",
+          "enum": [
+            "inherit",
+            "top",
+            "left"
+          ],
+          "x-ui": {
+            "widget": "radio-group",
+            "options": [
+              {
+                "label": "继承表单",
+                "value": "inherit"
+              },
+              {
+                "label": "顶部",
+                "value": "top"
+              },
+              {
+                "label": "左侧",
+                "value": "left"
+              }
+            ]
+          }
+        },
+        "activeLabel": {
+          "type": "string",
+          "x-ui": {
+            "widget": "input"
+          }
+        },
+        "inactiveLabel": {
+          "type": "string",
+          "x-ui": {
+            "widget": "input"
+          }
+        }
+      },
+      "required": [
+        "name"
+      ],
+      "additionalProperties": false
+    },
+    "form-date": {
+      "type": "object",
+      "properties": {
+        "title": {
+          "type": "string",
+          "x-ui": {
+            "widget": "input"
+          }
+        },
+        "name": {
+          "type": "string",
+          "pattern": "^[a-zA-Z0-9_]+$",
+          "x-ui": {
+            "widget": "input"
+          }
+        },
+        "defaultValue": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "x-ui": {
+            "widget": "hidden"
+          }
+        },
+        "labelPosition": {
+          "type": "string",
+          "enum": [
+            "inherit",
+            "top",
+            "left"
+          ],
+          "x-ui": {
+            "widget": "radio-group",
+            "options": [
+              {
+                "label": "继承表单",
+                "value": "inherit"
+              },
+              {
+                "label": "顶部",
+                "value": "top"
+              },
+              {
+                "label": "左侧",
+                "value": "left"
+              }
+            ]
+          }
+        },
+        "placeholder": {
+          "type": "string",
+          "x-ui": {
+            "widget": "input"
+          }
+        },
+        "width": {
+          "type": "number",
+          "minimum": 120,
+          "maximum": 420,
+          "x-ui": {
+            "widget": "number",
+            "min": 120,
+            "max": 420
+          }
+        }
+      },
+      "required": [
+        "name"
+      ],
+      "additionalProperties": false
     }
   },
   "questionJsonSchema": {
@@ -976,6 +1603,27 @@
                 },
                 {
                   "$ref": "#/$defs/essayNode"
+                },
+                {
+                  "$ref": "#/$defs/form-inputNode"
+                },
+                {
+                  "$ref": "#/$defs/form-textareaNode"
+                },
+                {
+                  "$ref": "#/$defs/form-selectNode"
+                },
+                {
+                  "$ref": "#/$defs/form-radioNode"
+                },
+                {
+                  "$ref": "#/$defs/form-checkboxNode"
+                },
+                {
+                  "$ref": "#/$defs/form-switchNode"
+                },
+                {
+                  "$ref": "#/$defs/form-dateNode"
                 }
               ]
             }
@@ -1063,6 +1711,27 @@
                 },
                 {
                   "$ref": "#/$defs/essayNode"
+                },
+                {
+                  "$ref": "#/$defs/form-inputNode"
+                },
+                {
+                  "$ref": "#/$defs/form-textareaNode"
+                },
+                {
+                  "$ref": "#/$defs/form-selectNode"
+                },
+                {
+                  "$ref": "#/$defs/form-radioNode"
+                },
+                {
+                  "$ref": "#/$defs/form-checkboxNode"
+                },
+                {
+                  "$ref": "#/$defs/form-switchNode"
+                },
+                {
+                  "$ref": "#/$defs/form-dateNode"
                 }
               ]
             }
@@ -1923,6 +2592,780 @@
           },
           "options": {
             "$ref": "#/$defs/essayOptions"
+          }
+        },
+        "required": [
+          "type",
+          "id",
+          "options"
+        ],
+        "additionalProperties": false
+      },
+      "form-inputOptions": {
+        "type": "object",
+        "properties": {
+          "title": {
+            "type": "string",
+            "x-ui": {
+              "widget": "input"
+            }
+          },
+          "name": {
+            "type": "string",
+            "pattern": "^[a-zA-Z0-9_]+$",
+            "x-ui": {
+              "widget": "input"
+            }
+          },
+          "defaultValue": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "x-ui": {
+              "widget": "hidden"
+            }
+          },
+          "labelPosition": {
+            "type": "string",
+            "enum": [
+              "inherit",
+              "top",
+              "left"
+            ],
+            "x-ui": {
+              "widget": "radio-group",
+              "options": [
+                {
+                  "label": "继承表单",
+                  "value": "inherit"
+                },
+                {
+                  "label": "顶部",
+                  "value": "top"
+                },
+                {
+                  "label": "左侧",
+                  "value": "left"
+                }
+              ]
+            }
+          },
+          "placeholder": {
+            "type": "string",
+            "x-ui": {
+              "widget": "input"
+            }
+          },
+          "maxLength": {
+            "type": "number",
+            "minimum": 1,
+            "maximum": 2000,
+            "x-ui": {
+              "widget": "number",
+              "min": 1,
+              "max": 2000
+            }
+          },
+          "width": {
+            "type": "number",
+            "minimum": 120,
+            "maximum": 720,
+            "x-ui": {
+              "widget": "number",
+              "min": 120,
+              "max": 720
+            }
+          }
+        },
+        "required": [
+          "name"
+        ],
+        "additionalProperties": false
+      },
+      "form-inputNode": {
+        "type": "object",
+        "properties": {
+          "type": {
+            "const": "form-input"
+          },
+          "id": {
+            "type": "string",
+            "minLength": 1
+          },
+          "options": {
+            "$ref": "#/$defs/form-inputOptions"
+          }
+        },
+        "required": [
+          "type",
+          "id",
+          "options"
+        ],
+        "additionalProperties": false
+      },
+      "form-textareaOptions": {
+        "type": "object",
+        "properties": {
+          "title": {
+            "type": "string",
+            "x-ui": {
+              "widget": "input"
+            }
+          },
+          "name": {
+            "type": "string",
+            "pattern": "^[a-zA-Z0-9_]+$",
+            "x-ui": {
+              "widget": "input"
+            }
+          },
+          "defaultValue": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "x-ui": {
+              "widget": "hidden"
+            }
+          },
+          "labelPosition": {
+            "type": "string",
+            "enum": [
+              "inherit",
+              "top",
+              "left"
+            ],
+            "x-ui": {
+              "widget": "radio-group",
+              "options": [
+                {
+                  "label": "继承表单",
+                  "value": "inherit"
+                },
+                {
+                  "label": "顶部",
+                  "value": "top"
+                },
+                {
+                  "label": "左侧",
+                  "value": "left"
+                }
+              ]
+            }
+          },
+          "placeholder": {
+            "type": "string",
+            "x-ui": {
+              "widget": "input"
+            }
+          },
+          "maxLength": {
+            "type": "number",
+            "minimum": 1,
+            "maximum": 10000,
+            "x-ui": {
+              "widget": "number",
+              "min": 1,
+              "max": 10000
+            }
+          },
+          "rows": {
+            "type": "number",
+            "minimum": 2,
+            "maximum": 16,
+            "x-ui": {
+              "widget": "number",
+              "min": 2,
+              "max": 16
+            }
+          }
+        },
+        "required": [
+          "name"
+        ],
+        "additionalProperties": false
+      },
+      "form-textareaNode": {
+        "type": "object",
+        "properties": {
+          "type": {
+            "const": "form-textarea"
+          },
+          "id": {
+            "type": "string",
+            "minLength": 1
+          },
+          "options": {
+            "$ref": "#/$defs/form-textareaOptions"
+          }
+        },
+        "required": [
+          "type",
+          "id",
+          "options"
+        ],
+        "additionalProperties": false
+      },
+      "form-selectOptions": {
+        "type": "object",
+        "properties": {
+          "title": {
+            "type": "string",
+            "x-ui": {
+              "widget": "input"
+            }
+          },
+          "name": {
+            "type": "string",
+            "pattern": "^[a-zA-Z0-9_]+$",
+            "x-ui": {
+              "widget": "input"
+            }
+          },
+          "defaultValue": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "x-ui": {
+              "widget": "hidden"
+            }
+          },
+          "labelPosition": {
+            "type": "string",
+            "enum": [
+              "inherit",
+              "top",
+              "left"
+            ],
+            "x-ui": {
+              "widget": "radio-group",
+              "options": [
+                {
+                  "label": "继承表单",
+                  "value": "inherit"
+                },
+                {
+                  "label": "顶部",
+                  "value": "top"
+                },
+                {
+                  "label": "左侧",
+                  "value": "left"
+                }
+              ]
+            }
+          },
+          "optionItems": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "label": {
+                  "type": "string"
+                },
+                "value": {
+                  "type": "string"
+                }
+              },
+              "required": [
+                "label",
+                "value"
+              ],
+              "additionalProperties": false
+            },
+            "x-ui": {
+              "widget": "option-editor"
+            }
+          },
+          "placeholder": {
+            "type": "string",
+            "x-ui": {
+              "widget": "input"
+            }
+          },
+          "width": {
+            "type": "number",
+            "minimum": 120,
+            "maximum": 720,
+            "x-ui": {
+              "widget": "number",
+              "min": 120,
+              "max": 720
+            }
+          }
+        },
+        "required": [
+          "name"
+        ],
+        "additionalProperties": false
+      },
+      "form-selectNode": {
+        "type": "object",
+        "properties": {
+          "type": {
+            "const": "form-select"
+          },
+          "id": {
+            "type": "string",
+            "minLength": 1
+          },
+          "options": {
+            "$ref": "#/$defs/form-selectOptions"
+          }
+        },
+        "required": [
+          "type",
+          "id",
+          "options"
+        ],
+        "additionalProperties": false
+      },
+      "form-radioOptions": {
+        "type": "object",
+        "properties": {
+          "title": {
+            "type": "string",
+            "x-ui": {
+              "widget": "input"
+            }
+          },
+          "name": {
+            "type": "string",
+            "pattern": "^[a-zA-Z0-9_]+$",
+            "x-ui": {
+              "widget": "input"
+            }
+          },
+          "defaultValue": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "x-ui": {
+              "widget": "hidden"
+            }
+          },
+          "labelPosition": {
+            "type": "string",
+            "enum": [
+              "inherit",
+              "top",
+              "left"
+            ],
+            "x-ui": {
+              "widget": "radio-group",
+              "options": [
+                {
+                  "label": "继承表单",
+                  "value": "inherit"
+                },
+                {
+                  "label": "顶部",
+                  "value": "top"
+                },
+                {
+                  "label": "左侧",
+                  "value": "left"
+                }
+              ]
+            }
+          },
+          "optionItems": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "label": {
+                  "type": "string"
+                },
+                "value": {
+                  "type": "string"
+                }
+              },
+              "required": [
+                "label",
+                "value"
+              ],
+              "additionalProperties": false
+            },
+            "x-ui": {
+              "widget": "option-editor"
+            }
+          },
+          "optionsLayout": {
+            "type": "string",
+            "enum": [
+              "vertical",
+              "horizontal"
+            ],
+            "description": "Default: vertical",
+            "x-ui": {
+              "widget": "radio-group",
+              "options": [
+                {
+                  "label": "纵向",
+                  "value": "vertical"
+                },
+                {
+                  "label": "横向",
+                  "value": "horizontal"
+                }
+              ]
+            }
+          }
+        },
+        "required": [
+          "name"
+        ],
+        "additionalProperties": false
+      },
+      "form-radioNode": {
+        "type": "object",
+        "properties": {
+          "type": {
+            "const": "form-radio"
+          },
+          "id": {
+            "type": "string",
+            "minLength": 1
+          },
+          "options": {
+            "$ref": "#/$defs/form-radioOptions"
+          }
+        },
+        "required": [
+          "type",
+          "id",
+          "options"
+        ],
+        "additionalProperties": false
+      },
+      "form-checkboxOptions": {
+        "type": "object",
+        "properties": {
+          "title": {
+            "type": "string",
+            "x-ui": {
+              "widget": "input"
+            }
+          },
+          "name": {
+            "type": "string",
+            "pattern": "^[a-zA-Z0-9_]+$",
+            "x-ui": {
+              "widget": "input"
+            }
+          },
+          "defaultValue": {
+            "anyOf": [
+              {
+                "type": "array",
+                "items": {
+                  "type": "string"
+                }
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "x-ui": {
+              "widget": "hidden"
+            }
+          },
+          "labelPosition": {
+            "type": "string",
+            "enum": [
+              "inherit",
+              "top",
+              "left"
+            ],
+            "x-ui": {
+              "widget": "radio-group",
+              "options": [
+                {
+                  "label": "继承表单",
+                  "value": "inherit"
+                },
+                {
+                  "label": "顶部",
+                  "value": "top"
+                },
+                {
+                  "label": "左侧",
+                  "value": "left"
+                }
+              ]
+            }
+          },
+          "optionItems": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "label": {
+                  "type": "string"
+                },
+                "value": {
+                  "type": "string"
+                }
+              },
+              "required": [
+                "label",
+                "value"
+              ],
+              "additionalProperties": false
+            },
+            "x-ui": {
+              "widget": "option-editor"
+            }
+          },
+          "optionsLayout": {
+            "type": "string",
+            "enum": [
+              "vertical",
+              "horizontal"
+            ],
+            "description": "Default: vertical",
+            "x-ui": {
+              "widget": "radio-group",
+              "options": [
+                {
+                  "label": "纵向",
+                  "value": "vertical"
+                },
+                {
+                  "label": "横向",
+                  "value": "horizontal"
+                }
+              ]
+            }
+          }
+        },
+        "required": [
+          "name"
+        ],
+        "additionalProperties": false
+      },
+      "form-checkboxNode": {
+        "type": "object",
+        "properties": {
+          "type": {
+            "const": "form-checkbox"
+          },
+          "id": {
+            "type": "string",
+            "minLength": 1
+          },
+          "options": {
+            "$ref": "#/$defs/form-checkboxOptions"
+          }
+        },
+        "required": [
+          "type",
+          "id",
+          "options"
+        ],
+        "additionalProperties": false
+      },
+      "form-switchOptions": {
+        "type": "object",
+        "properties": {
+          "title": {
+            "type": "string",
+            "x-ui": {
+              "widget": "input"
+            }
+          },
+          "name": {
+            "type": "string",
+            "pattern": "^[a-zA-Z0-9_]+$",
+            "x-ui": {
+              "widget": "input"
+            }
+          },
+          "defaultValue": {
+            "anyOf": [
+              {
+                "type": "boolean"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "x-ui": {
+              "widget": "hidden"
+            }
+          },
+          "labelPosition": {
+            "type": "string",
+            "enum": [
+              "inherit",
+              "top",
+              "left"
+            ],
+            "x-ui": {
+              "widget": "radio-group",
+              "options": [
+                {
+                  "label": "继承表单",
+                  "value": "inherit"
+                },
+                {
+                  "label": "顶部",
+                  "value": "top"
+                },
+                {
+                  "label": "左侧",
+                  "value": "left"
+                }
+              ]
+            }
+          },
+          "activeLabel": {
+            "type": "string",
+            "x-ui": {
+              "widget": "input"
+            }
+          },
+          "inactiveLabel": {
+            "type": "string",
+            "x-ui": {
+              "widget": "input"
+            }
+          }
+        },
+        "required": [
+          "name"
+        ],
+        "additionalProperties": false
+      },
+      "form-switchNode": {
+        "type": "object",
+        "properties": {
+          "type": {
+            "const": "form-switch"
+          },
+          "id": {
+            "type": "string",
+            "minLength": 1
+          },
+          "options": {
+            "$ref": "#/$defs/form-switchOptions"
+          }
+        },
+        "required": [
+          "type",
+          "id",
+          "options"
+        ],
+        "additionalProperties": false
+      },
+      "form-dateOptions": {
+        "type": "object",
+        "properties": {
+          "title": {
+            "type": "string",
+            "x-ui": {
+              "widget": "input"
+            }
+          },
+          "name": {
+            "type": "string",
+            "pattern": "^[a-zA-Z0-9_]+$",
+            "x-ui": {
+              "widget": "input"
+            }
+          },
+          "defaultValue": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "x-ui": {
+              "widget": "hidden"
+            }
+          },
+          "labelPosition": {
+            "type": "string",
+            "enum": [
+              "inherit",
+              "top",
+              "left"
+            ],
+            "x-ui": {
+              "widget": "radio-group",
+              "options": [
+                {
+                  "label": "继承表单",
+                  "value": "inherit"
+                },
+                {
+                  "label": "顶部",
+                  "value": "top"
+                },
+                {
+                  "label": "左侧",
+                  "value": "left"
+                }
+              ]
+            }
+          },
+          "placeholder": {
+            "type": "string",
+            "x-ui": {
+              "widget": "input"
+            }
+          },
+          "width": {
+            "type": "number",
+            "minimum": 120,
+            "maximum": 420,
+            "x-ui": {
+              "widget": "number",
+              "min": 120,
+              "max": 420
+            }
+          }
+        },
+        "required": [
+          "name"
+        ],
+        "additionalProperties": false
+      },
+      "form-dateNode": {
+        "type": "object",
+        "properties": {
+          "type": {
+            "const": "form-date"
+          },
+          "id": {
+            "type": "string",
+            "minLength": 1
+          },
+          "options": {
+            "$ref": "#/$defs/form-dateOptions"
           }
         },
         "required": [

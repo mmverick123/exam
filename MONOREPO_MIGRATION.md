@@ -404,6 +404,8 @@ pnpm release:lowcode
 
 首次从新仓库发布前，在 GitHub Packages 的 `@mmverick123/lowcode` 包设置中确认新 `exam` 仓库已连接并拥有写权限；使用 classic PAT 发布时仍需 `write:packages`。
 
+后续发布与消费端安装遵循 `.codex/skills/lowcode-release/SKILL.md`，避免把已迁移前的 `exam-lowcode-lib` 当作发布目标，或在包尚未发布前提前生成指向新版本的 frozen lockfile。
+
 发布后更新两个消费端中的精确版本，再执行根目录 `pnpm install`：
 
 ```powershell

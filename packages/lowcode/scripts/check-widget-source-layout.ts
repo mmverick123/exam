@@ -11,6 +11,13 @@ const widgetFiles = new Map([
   ['judge', 'judge-widget.tsx'],
   ['fill-blank', 'fill-blank-widget.tsx'],
   ['essay', 'essay-widget.tsx'],
+  ['form-input', 'form-input-widget.tsx'],
+  ['form-textarea', 'form-textarea-widget.tsx'],
+  ['form-select', 'form-select-widget.tsx'],
+  ['form-radio', 'form-radio-widget.tsx'],
+  ['form-checkbox', 'form-checkbox-widget.tsx'],
+  ['form-switch', 'form-switch-widget.tsx'],
+  ['form-date', 'form-date-widget.tsx'],
 ]);
 
 for (const [type, file] of widgetFiles) {

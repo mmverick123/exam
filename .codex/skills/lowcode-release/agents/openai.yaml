@@ -1,0 +1,3 @@
+interface:
+  display_name: "Lowcode Release"
+  short_description: "Publish and install lowcode from exam GitHub Packages"

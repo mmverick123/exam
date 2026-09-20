@@ -2,7 +2,7 @@
 
 实际发布包为 `@mmverick123/lowcode`，公共入口为 `@mmverick123/lowcode/contract`、`renderer`、`designer`。消费端为保持现有源码 import，使用 alias `@exam/lowcode` 指向该包。
 
-本包按标准 npm registry 流程发布，不再把相邻源码目录、`file:` tarball 或 `pnpm link` 作为消费端依赖。`prepublishOnly` 会在发布前执行完整 `verify`，发布内容由 `files` 白名单限制为构建产物、契约 JSON 与 README。
+本包发布到当前仓库 `https://github.com/mmverick123/exam` 关联的 GitHub Packages registry（`https://npm.pkg.github.com/`），不再把已迁移前的 `exam-lowcode-lib` 作为发布目标，也不把相邻源码目录、`file:` tarball 或 `pnpm link` 作为消费端依赖。`prepublishOnly` 会在发布前执行完整 `verify`，发布内容由 `files` 白名单限制为构建产物、契约 JSON 与 README。
 
 智能题型编排平台的低码组件包。当前完成 Step 1：契约层、生成产物、校验器、投影与归一化。
 
@@ -21,6 +21,6 @@ pnpm release:npm
 
 `verify` 依次执行 lint、类型检查、契约生成、测试、契约快照检查、三入口构建和产物边界检查。契约有意变更时，应先判断 semver 影响，再运行 `pnpm contract:snapshot:update` 更新基线。
 
-首次发布前需要确认 GitHub 用户 `mmverick123` 对仓库有写权限，并创建带 `write:packages` 的 GitHub PAT。通过用户级 npm 配置使用 `https://npm.pkg.github.com/`；不得把 token 写入仓库。`pnpm pack:local` 仅用于发布内容预检。
+首次从本仓库发布前，需要在 GitHub Packages 的 `@mmverick123/lowcode` 设置中确认已连接当前 `mmverick123/exam` 仓库，并确认发布身份有 `write:packages` 权限。通过用户级 npm 配置使用 `https://npm.pkg.github.com/`；不得把 token 写入仓库。`pnpm pack:local` 仅用于发布内容预检。
 
-发布成功后，消费项目使用 `pnpm add @exam/lowcode@npm:@mmverick123/lowcode@0.1.1 --save-exact` 从 GitHub Packages 安装。升级必须先发布新版本，再显式更新消费端版本和 lockfile。
+发布成功后，消费项目使用精确 alias 从 GitHub Packages 安装，例如 `pnpm add @exam/lowcode@npm:@mmverick123/lowcode@0.1.5 --save-exact`。升级必须先发布新版本，再显式更新消费端版本和 lockfile。完整流程见项目 skill：`.codex/skills/lowcode-release/SKILL.md`。

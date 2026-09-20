@@ -50,6 +50,22 @@ const commonAnswerProperties = (
   labelPosition: labelPositionProperty,
 });
 
+const commonFormProperties = (
+  defaultValueSchema: JSONSchema,
+): Record<string, JSONSchema> => ({
+  title: titleProperty,
+  name: {
+    type: 'string',
+    pattern: '^[a-zA-Z0-9_]+$',
+    'x-ui': { widget: 'input' },
+  },
+  defaultValue: {
+    ...defaultValueSchema,
+    'x-ui': { widget: 'hidden' },
+  },
+  labelPosition: labelPositionProperty,
+});
+
 const stringOrNull: JSONSchema = {
   anyOf: [{ type: 'string' }, { type: 'null' }],
 };
@@ -100,13 +116,23 @@ const leafTypes = [
   'essay',
 ] as const;
 
+const formTypes = [
+  'form-input',
+  'form-textarea',
+  'form-select',
+  'form-radio',
+  'form-checkbox',
+  'form-switch',
+  'form-date',
+] as const;
+
 const definitions = [
   {
     type: 'page',
     displayName: '页面',
     aiHint: '题型唯一根容器，由系统创建，不允许 Agent 生成。',
     componentType: 'CONTAINER',
-    allowedChildTypes: ['question-group', ...leafTypes],
+    allowedChildTypes: ['question-group', ...leafTypes, ...formTypes],
     internal: true,
     agentExcluded: true,
     defaultOptions: {},
@@ -416,6 +442,194 @@ const definitions = [
           maximum: 20,
           'x-ui': { widget: 'number', min: 2, max: 20 },
         },
+      },
+      required: ['name'],
+      additionalProperties: false,
+    },
+  },
+  {
+    type: 'form-input',
+    displayName: '单行输入',
+    aiHint: '问卷中的单行文本输入项，适合姓名、邮箱、电话等短文本。',
+    libraryGroup: 'form',
+    componentType: 'ANSWER_COMPONENT',
+    answerType: 'string',
+    defaultOptions: {
+      title: '',
+      name: 'text_input',
+      defaultValue: null,
+      labelPosition: 'inherit',
+      placeholder: '请输入',
+      maxLength: 200,
+      width: 420,
+    },
+    optionsSchema: {
+      type: 'object',
+      properties: {
+        ...commonFormProperties(stringOrNull),
+        placeholder: { type: 'string', 'x-ui': { widget: 'input' } },
+        maxLength: { type: 'number', minimum: 1, maximum: 2000, 'x-ui': { widget: 'number', min: 1, max: 2000 } },
+        width: { type: 'number', minimum: 120, maximum: 720, 'x-ui': { widget: 'number', min: 120, max: 720 } },
+      },
+      required: ['name'],
+      additionalProperties: false,
+    },
+  },
+  {
+    type: 'form-textarea',
+    displayName: '多行输入',
+    aiHint: '问卷中的多行文本输入项，适合意见、建议和详细描述。',
+    libraryGroup: 'form',
+    componentType: 'ANSWER_COMPONENT',
+    answerType: 'string',
+    defaultOptions: {
+      title: '',
+      name: 'textarea',
+      defaultValue: null,
+      labelPosition: 'inherit',
+      placeholder: '请输入',
+      maxLength: 2000,
+      rows: 5,
+    },
+    optionsSchema: {
+      type: 'object',
+      properties: {
+        ...commonFormProperties(stringOrNull),
+        placeholder: { type: 'string', 'x-ui': { widget: 'input' } },
+        maxLength: { type: 'number', minimum: 1, maximum: 10000, 'x-ui': { widget: 'number', min: 1, max: 10000 } },
+        rows: { type: 'number', minimum: 2, maximum: 16, 'x-ui': { widget: 'number', min: 2, max: 16 } },
+      },
+      required: ['name'],
+      additionalProperties: false,
+    },
+  },
+  {
+    type: 'form-select',
+    displayName: '下拉选择',
+    aiHint: '问卷中的单项下拉选择，选项 value 是不可变标识。',
+    libraryGroup: 'form',
+    componentType: 'ANSWER_COMPONENT',
+    answerType: 'string',
+    defaultOptions: {
+      title: '',
+      name: 'select',
+      defaultValue: null,
+      labelPosition: 'inherit',
+      optionItems: [],
+      placeholder: '请选择',
+      width: 280,
+    },
+    optionsSchema: {
+      type: 'object',
+      properties: {
+        ...commonFormProperties(stringOrNull),
+        optionItems: optionItemsProperty,
+        placeholder: { type: 'string', 'x-ui': { widget: 'input' } },
+        width: { type: 'number', minimum: 120, maximum: 720, 'x-ui': { widget: 'number', min: 120, max: 720 } },
+      },
+      required: ['name'],
+      additionalProperties: false,
+    },
+  },
+  {
+    type: 'form-radio',
+    displayName: '单选项',
+    aiHint: '问卷中的单项选择，适合满意度、类型和偏好等互斥选项。',
+    libraryGroup: 'form',
+    componentType: 'ANSWER_COMPONENT',
+    answerType: 'string',
+    defaultOptions: {
+      title: '',
+      name: 'radio',
+      defaultValue: null,
+      labelPosition: 'inherit',
+      optionItems: [],
+      optionsLayout: 'vertical',
+    },
+    optionsSchema: {
+      type: 'object',
+      properties: {
+        ...commonFormProperties(stringOrNull),
+        optionItems: optionItemsProperty,
+        optionsLayout: optionsLayoutProperty('vertical'),
+      },
+      required: ['name'],
+      additionalProperties: false,
+    },
+  },
+  {
+    type: 'form-checkbox',
+    displayName: '多选项',
+    aiHint: '问卷中的多项选择，适合兴趣、技能和可接受条件等非互斥选项。',
+    libraryGroup: 'form',
+    componentType: 'ANSWER_COMPONENT',
+    answerType: 'string[]',
+    defaultOptions: {
+      title: '',
+      name: 'checkbox',
+      defaultValue: null,
+      labelPosition: 'inherit',
+      optionItems: [],
+      optionsLayout: 'vertical',
+    },
+    optionsSchema: {
+      type: 'object',
+      properties: {
+        ...commonFormProperties(stringArrayOrNull),
+        optionItems: optionItemsProperty,
+        optionsLayout: optionsLayoutProperty('vertical'),
+      },
+      required: ['name'],
+      additionalProperties: false,
+    },
+  },
+  {
+    type: 'form-switch',
+    displayName: '开关',
+    aiHint: '问卷中的二值开关，适合是否同意、是否订阅等问题。',
+    libraryGroup: 'form',
+    componentType: 'ANSWER_COMPONENT',
+    answerType: 'boolean',
+    defaultOptions: {
+      title: '',
+      name: 'switch',
+      defaultValue: null,
+      labelPosition: 'inherit',
+      activeLabel: '是',
+      inactiveLabel: '否',
+    },
+    optionsSchema: {
+      type: 'object',
+      properties: {
+        ...commonFormProperties(booleanOrNull),
+        activeLabel: { type: 'string', 'x-ui': { widget: 'input' } },
+        inactiveLabel: { type: 'string', 'x-ui': { widget: 'input' } },
+      },
+      required: ['name'],
+      additionalProperties: false,
+    },
+  },
+  {
+    type: 'form-date',
+    displayName: '日期选择',
+    aiHint: '问卷中的日期选择，答案使用 YYYY-MM-DD 字符串。',
+    libraryGroup: 'form',
+    componentType: 'ANSWER_COMPONENT',
+    answerType: 'string',
+    defaultOptions: {
+      title: '',
+      name: 'date',
+      defaultValue: null,
+      labelPosition: 'inherit',
+      placeholder: '请选择日期',
+      width: 220,
+    },
+    optionsSchema: {
+      type: 'object',
+      properties: {
+        ...commonFormProperties(stringOrNull),
+        placeholder: { type: 'string', 'x-ui': { widget: 'input' } },
+        width: { type: 'number', minimum: 120, maximum: 420, 'x-ui': { widget: 'number', min: 120, max: 420 } },
       },
       required: ['name'],
       additionalProperties: false,

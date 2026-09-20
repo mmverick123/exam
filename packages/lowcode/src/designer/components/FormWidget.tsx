@@ -9,9 +9,10 @@ export interface FormWidgetProps {
   store: DesignerStore;
   selectedId: string | null;
   onSelect: (id: string | null) => void;
+  recentNodeId?: string | null | undefined;
 }
 
-function DesignerNode({ node, store, selectedId, onSelect }: FormWidgetProps & { node: WidgetNode }) {
+function DesignerNode({ node, store, selectedId, onSelect, recentNodeId }: FormWidgetProps & { node: WidgetNode }) {
   const selected = selectedId === node.id;
   const definition = getWidgetDefinition(node.type);
   const { attributes, listeners, setNodeRef: setDragRef, transform } = useDraggable({ id: `node:${node.id}`, data: { kind: 'node', nodeId: node.id } });
@@ -23,7 +24,7 @@ function DesignerNode({ node, store, selectedId, onSelect }: FormWidgetProps & {
         return (
           <Container node={node} mode="design">
             {(node.widgetList ?? []).map((child) => (
-              <DesignerNode key={child.id} node={child} store={store} selectedId={selectedId} onSelect={onSelect} />
+                <DesignerNode key={child.id} node={child} store={store} selectedId={selectedId} onSelect={onSelect} recentNodeId={recentNodeId} />
             ))}
           </Container>
         );
@@ -34,7 +35,7 @@ function DesignerNode({ node, store, selectedId, onSelect }: FormWidgetProps & {
       })();
   return (
     <div ref={(element) => { setDragRef(element); setDropRef(element); }} style={transform ? { transform: `translate3d(${transform.x}px, ${transform.y}px, 0)` } : undefined}
-      className={`exam-designer-node${selected ? ' is-selected' : ''}`}
+      className={`exam-designer-node${selected ? ' is-selected' : ''}${recentNodeId === node.id ? ' is-just-added' : ''}`}
       data-node-id={node.id} data-drop-over={isOver || undefined}
       {...listeners} {...attributes}
       onClick={(event) => { event.stopPropagation(); onSelect(node.id); }}
@@ -48,11 +49,11 @@ function DesignerNode({ node, store, selectedId, onSelect }: FormWidgetProps & {
   );
 }
 
-export function FormWidget({ store, selectedId, onSelect }: FormWidgetProps) {
+export function FormWidget({ store, selectedId, onSelect, recentNodeId }: FormWidgetProps) {
   const json = store.getJson();
   return (
     <main className="exam-form-widget" onClick={() => onSelect(null)}>
-      {json.widgetList.map((node) => <DesignerNode key={node.id} node={node} store={store} selectedId={selectedId} onSelect={onSelect} />)}
+      {json.widgetList.map((node) => <DesignerNode key={node.id} node={node} store={store} selectedId={selectedId} onSelect={onSelect} recentNodeId={recentNodeId} />)}
     </main>
   );
 }
