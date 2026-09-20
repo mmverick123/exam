@@ -52,3 +52,15 @@ th, td { padding: 13px 16px; border-bottom: 1px solid #e8edf5; text-align: left;
   background: linear-gradient(145deg, #2d78ff, #6657ee);
   box-shadow: 0 7px 16px rgb(45 120 255 / 24%);
 }
+.question-type-modal { position: fixed; inset: 0; z-index: 30; display: grid; place-items: center; padding: 28px; background: rgb(23 32 51 / 42%); }
+.question-type-modal-card { width: min(980px, 100%); max-height: calc(100vh - 56px); display: flex; flex-direction: column; overflow: hidden; border-radius: 16px; background: #f7f9fc; box-shadow: 0 24px 80px rgb(23 32 51 / 28%); }
+.question-type-modal-card > header { display: flex; align-items: flex-start; justify-content: space-between; padding: 22px 26px 18px; background: #fff; border-bottom: 1px solid #e7ebf2; }
+.question-type-modal-card h2 { margin: 7px 0 0; color: #1d2b42; font-size: 20px; }
+.question-type-preview { min-height: 0; overflow: auto; padding: 24px; }
+.question-type-preview .exam-renderer { min-height: 320px; }
+.question-type-import-card { width: min(760px, 100%); padding-bottom: 20px; }
+.question-type-import-card > .muted, .question-type-import-card > .page-error { margin: 16px 26px 0; }
+.question-type-copy-status { color: #2f7b58; }
+.question-type-import-card > textarea { min-height: 420px; margin: 16px 26px 0; padding: 14px; resize: vertical; border: 1px solid #d6dfec; border-radius: 10px; outline: 0; color: #243650; background: #fbfcfe; font: 12px/1.65 ui-monospace, SFMono-Regular, Consolas, monospace; }
+.question-type-import-card > textarea:focus { border-color: #6f9cf4; box-shadow: 0 0 0 3px rgb(63 125 244 / 12%); }
+.question-type-import-card > footer { display: flex; justify-content: flex-end; gap: 9px; margin: 16px 26px 0; }

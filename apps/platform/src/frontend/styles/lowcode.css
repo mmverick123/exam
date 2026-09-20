@@ -141,6 +141,9 @@
   .exam-widget-panel button { width: 100%; margin-right: 0; }
 }
 .exam-designer-node { position: relative; margin: 8px 0; padding: 10px; border: 1px solid transparent; border-radius: 6px; transition: 130ms ease; }
+.exam-designer-drop-gap { position: relative; z-index: 1; height: 14px; margin: -2px 0; border-radius: 7px; transition: 130ms ease; }
+.exam-designer-drop-gap[data-drop-over="true"] { background: rgb(66 130 255 / 10%); box-shadow: inset 0 0 0 1px rgb(66 130 255 / 30%); }
+.exam-designer-drop-gap[data-drop-over="true"]::after { content: ""; position: absolute; top: 50%; right: 8px; left: 8px; height: 2px; background: #4d86ff; box-shadow: 0 0 0 3px rgb(66 130 255 / 10%); }
 .exam-designer-node:hover { border-color: #b9cffd; }
 .exam-designer-node[data-drop-over="true"] {
   border-color: #4d86ff;

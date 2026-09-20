@@ -23,9 +23,13 @@ function DesignerNode({ node, store, selectedId, onSelect, recentNodeId }: FormW
         if (!Container) return null;
         return (
           <Container node={node} mode="design">
-            {(node.widgetList ?? []).map((child) => (
-                <DesignerNode key={child.id} node={child} store={store} selectedId={selectedId} onSelect={onSelect} recentNodeId={recentNodeId} />
+            {(node.widgetList ?? []).map((child, index, children) => (
+              <React.Fragment key={child.id}>
+                <SiblingDropZone parentId={node.id} afterId={index > 0 ? children[index - 1]!.id : null} />
+                <DesignerNode node={child} store={store} selectedId={selectedId} onSelect={onSelect} recentNodeId={recentNodeId} />
+              </React.Fragment>
             ))}
+            <SiblingDropZone parentId={node.id} afterId={node.widgetList?.at(-1)?.id ?? null} />
           </Container>
         );
       })()
@@ -47,6 +51,14 @@ function DesignerNode({ node, store, selectedId, onSelect, recentNodeId }: FormW
       {content}
     </div>
   );
+}
+
+function SiblingDropZone({ parentId, afterId }: { parentId: string; afterId: string | null }) {
+  const { setNodeRef, isOver } = useDroppable({
+    id: `drop-gap:${parentId}:${afterId ?? 'start'}`,
+    data: { kind: 'sibling-gap', parentId, afterId },
+  });
+  return <div ref={setNodeRef} className="exam-designer-drop-gap" data-drop-over={isOver || undefined} aria-hidden="true" />;
 }
 
 export function FormWidget({ store, selectedId, onSelect, recentNodeId }: FormWidgetProps) {

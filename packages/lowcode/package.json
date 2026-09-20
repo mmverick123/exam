@@ -1,6 +1,6 @@
 {
   "name": "@mmverick123/lowcode",
-  "version": "0.1.5",
+  "version": "0.1.9",
   "description": "Schema-driven question composition contract, renderer, and designer",
   "repository": {
     "type": "git",

@@ -13,9 +13,12 @@ export interface QuestionDesignerProps {
   store?: DesignerStore;
   onChange?: (json: QuestionJson) => void;
   className?: string;
+  onPreview?: () => void;
+  onImportJson?: () => void;
+  onExportJson?: () => void;
 }
 
-export function QuestionDesigner({ json, store: externalStore, onChange, className }: QuestionDesignerProps) {
+export function QuestionDesigner({ json, store: externalStore, onChange, className, onPreview, onImportJson, onExportJson }: QuestionDesignerProps) {
   const ownedStore = useMemo(() => externalStore ?? createDesignerStore(json), [externalStore]);
   const store = externalStore ?? ownedStore;
   const [, setVersion] = useState(0);
@@ -44,23 +47,66 @@ export function QuestionDesigner({ json, store: externalStore, onChange, classNa
   };
   const handleDragEnd = (event: DragEndEvent) => {
     const source = event.active.data.current as { kind?: string; type?: string; nodeId?: string } | undefined;
-    const target = event.over?.data.current as { kind?: string; nodeId?: string } | undefined;
+    const target = event.over?.data.current as { kind?: string; nodeId?: string; parentId?: string; afterId?: string | null } | undefined;
     try {
-      if (source && target?.nodeId) {
-        if (source.kind === 'widget-type' && source.type) { const d = findNode(store.getJson().widgetList, target.nodeId); if (d && d.widgetList !== undefined && getAllowed(d.type, source.type)) { const inserted = store.insertNode(source.type, target.nodeId); flashNode(inserted.id); emitChange(); } }
-        else if (source.kind === 'node' && source.nodeId && source.nodeId !== target.nodeId) {
-          if (target.kind === 'container') { store.moveNode(source.nodeId, target.nodeId, null); flashNode(source.nodeId); emitChange(); }
-          else if (target.kind === 'sibling') { const location = findLocation(store.getJson().widgetList, target.nodeId); if (location) { store.moveNode(source.nodeId, location.parentId, target.nodeId); flashNode(source.nodeId); emitChange(); } }
+      if (source && target) {
+        if (source.kind === 'widget-type' && source.type) {
+          if (target.kind === 'sibling-gap' && target.parentId) {
+            const parent = findNode(store.getJson().widgetList, target.parentId);
+            if (parent && getAllowed(parent.type, source.type)) {
+              const inserted = store.insertNode(source.type, target.parentId, target.afterId ?? null);
+              flashNode(inserted.id);
+              emitChange();
+            }
+          } else if (target.nodeId) {
+            const targetNode = findNode(store.getJson().widgetList, target.nodeId);
+            if (targetNode && targetNode.widgetList !== undefined && getAllowed(targetNode.type, source.type)) {
+              const inserted = store.insertNode(source.type, target.nodeId);
+              flashNode(inserted.id);
+              emitChange();
+            } else if (target.kind === 'sibling') {
+              const location = findLocation(store.getJson().widgetList, target.nodeId);
+              const parent = location ? findNode(store.getJson().widgetList, location.parentId) : null;
+              if (location && parent && getAllowed(parent.type, source.type)) {
+                const inserted = store.insertNode(source.type, location.parentId, target.nodeId);
+                flashNode(inserted.id);
+                emitChange();
+              }
+            }
+          }
+        }
+        else if (source.kind === 'node' && source.nodeId) {
+          if (target.kind === 'sibling-gap' && target.parentId) {
+            if (source.nodeId !== target.afterId) { store.moveNode(source.nodeId, target.parentId, target.afterId ?? null); flashNode(source.nodeId); emitChange(); }
+          } else if (target.nodeId && source.nodeId !== target.nodeId) {
+            if (target.kind === 'container') { store.moveNode(source.nodeId, target.nodeId, null); flashNode(source.nodeId); emitChange(); }
+            else if (target.kind === 'sibling') { const location = findLocation(store.getJson().widgetList, target.nodeId); if (location) { store.moveNode(source.nodeId, location.parentId, target.nodeId); flashNode(source.nodeId); emitChange(); } }
+          }
         }
       }
     } catch { /* invalid drops are rejected by the Patch layer */ }
     setActiveDrag(null);
   };
   const handleDragCancel = () => setActiveDrag(null);
+  const exportJson = () => {
+    const text = JSON.stringify(store.getJson(), null, 2);
+    void navigator.clipboard?.writeText(text).catch(() => undefined);
+    const url = URL.createObjectURL(new Blob([text], { type: 'application/json;charset=utf-8' }));
+    const anchor = document.createElement('a');
+    anchor.href = url;
+    anchor.download = 'question-type.json';
+    anchor.click();
+    window.setTimeout(() => URL.revokeObjectURL(url), 0);
+  };
   return (
     <DndContext sensors={sensors} onDragStart={handleDragStart} onDragEnd={handleDragEnd} onDragCancel={handleDragCancel}>
     <div className={`${className ?? 'exam-question-designer'}${activeDrag ? ' is-dragging' : ''}`}>
-      <ToolbarPanel store={store} onPreview={() => setSelectedId(null)} />
+      <ToolbarPanel
+        store={store}
+        onPreview={() => { setSelectedId(null); onPreview?.(); }}
+        {...(onImportJson ? { onImportJson } : {})}
+        onExportJson={onExportJson ?? exportJson}
+      />
       <div className="exam-designer-body">
         <WidgetPanel onAdd={addToRoot} />
         <FormWidget store={store} selectedId={selectedId} onSelect={setSelectedId} recentNodeId={recentNodeId} />
