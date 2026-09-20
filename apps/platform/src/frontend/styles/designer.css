@@ -79,6 +79,7 @@
 .button-secondary { color: #34435a; background: #fff; border-color: #dbe2ec !important; }
 .button-secondary:hover { color: #246bfd; border-color: #9dbbff !important; }
 .button-ghost { color: #68758a; background: transparent; }
+.page-actions button:disabled { cursor: not-allowed; opacity: .5; box-shadow: none; }
 
 .version-banner { position: fixed; left: 50%; top: 76px; transform: translateX(-50%); z-index: 8; padding: 9px 14px; border-radius: 8px; background: #fff7ed; color: #9a3412; box-shadow: 0 8px 28px rgb(60 40 20 / 15%); font-size: 13px; }
 
@@ -159,6 +160,11 @@
 .agent-chat-drawer { display: none; grid-column: 1; grid-row: 2; min-width: 0; min-height: 0; padding: 0; overflow: hidden; flex-direction: column; background: #fff; border-right: 1px solid #e4e9f1; }
 .design-workspace.is-agent-mode .exam-widget-panel { display: none; }
 .design-workspace.is-agent-mode .agent-chat-drawer { display: flex; }
+.design-workspace.is-patch-preview .exam-toolbar-panel button,
+.design-workspace.is-patch-preview .exam-widget-panel button,
+.design-workspace.is-patch-preview .exam-designer-node,
+.design-workspace.is-patch-preview .exam-setting-panel :is(input, select, textarea, button) { pointer-events: none; opacity: .52; }
+.design-left-tabs button:disabled { cursor: not-allowed; opacity: .45; }
 .agent-chat-header { padding: 15px 13px; display: flex; gap: 9px; align-items: center; border-bottom: 1px solid #edf0f5; }
 .agent-avatar { width: 34px; height: 34px; flex: 0 0 34px; display: grid; place-items: center; border-radius: 10px; color: #fff; background: linear-gradient(145deg, #7558e8, #3579ff); box-shadow: 0 5px 13px rgb(72 91 224 / 22%); }
 .agent-chat-header h2 { margin: 0; font-size: 13px; }

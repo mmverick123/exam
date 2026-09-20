@@ -71,24 +71,37 @@ export function DesignPage({ id }: { id: string }) {
               if (last?.role === 'assistant') return [...items.slice(0, -1), { ...last, content: last.content + delta }];
               return [...items, { role: 'assistant', content: delta }];
             });
-          } else if (event[1] === 'patch') setPendingPatch({ summary: String(data.summary ?? ''), ops: (data.ops ?? []) as QuestionPatch['ops'] });
+          } else if (event[1] === 'patch') {
+            const patch = { summary: String(data.summary ?? ''), ops: (data.ops ?? []) as QuestionPatch['ops'] };
+            try {
+              store.applyPatch(patch);
+              setPendingPatch(patch);
+            } catch (error) {
+              console.error('Failed to preview agent patch', error);
+              setAgentError('改动预览失败，画布未发生变化。');
+            }
+          }
           else if (event[1] === 'error') setAgentError('未能生成可应用的改动，请调整描述后重试。');
         }
       }
     } catch (error) { if ((error as Error).name !== 'AbortError') setAgentError('AI 助手暂时不可用，请稍后重试。'); }
     finally { abortRef.current = null; setChatBusy(false); }
   };
-  const applyPending = () => {
+  const confirmPending = () => {
     if (!pendingPatch) return;
-    try {
-      store.applyPatch(pendingPatch);
-      setChatLog((items) => [...items, { role: 'assistant', content: `已应用：${pendingPatch.summary}` }]);
-      setPendingPatch(null);
-      setAgentError(null);
-    } catch (error) {
-      console.error('Failed to apply agent patch', error);
-      setAgentError('改动应用失败，画布未发生变化。');
+    setChatLog((items) => [...items, { role: 'assistant', content: `已确认：${pendingPatch.summary}` }]);
+    setPendingPatch(null);
+    setAgentError(null);
+  };
+  const rejectPending = () => {
+    if (!pendingPatch) return;
+    if (!store.undo()) {
+      setAgentError('无法撤销当前预览，请刷新页面后重试。');
+      return;
     }
+    setChatLog((items) => [...items, { role: 'assistant', content: `已撤销预览：${pendingPatch.summary}` }]);
+    setPendingPatch(null);
+    setAgentError(null);
   };
   return (
     <div className="design-page">
@@ -108,15 +121,15 @@ export function DesignPage({ id }: { id: string }) {
         <div className="page-actions">
           <span className="design-version">v{detail.currentVersion}</span>
           {message ? <span className="design-message" role="status">{message}</span> : null}
-          <button className="button-secondary" type="button" onClick={() => void save()}>保存草稿</button>
-          <button className="button-primary" type="button" onClick={() => void publish()}>发布当前版本</button>
+          <button className="button-secondary" type="button" onClick={() => void save()} disabled={Boolean(pendingPatch)}>保存草稿</button>
+          <button className="button-primary" type="button" onClick={() => void publish()} disabled={Boolean(pendingPatch)}>发布当前版本</button>
         </div>
       </header>
       {detail.formJson.contractVersion !== CONTRACT_VERSION ? <div className="version-banner">该题型基于契约 v{detail.formJson.contractVersion}，当前设计器为 v{CONTRACT_VERSION}</div> : null}
-      <section className={`design-workspace${leftPanel === 'agent' ? ' is-agent-mode' : ''}`}>
+      <section className={`design-workspace${leftPanel === 'agent' ? ' is-agent-mode' : ''}${pendingPatch ? ' is-patch-preview' : ''}`}>
         <QuestionDesigner store={store} />
         <div className="design-left-tabs" role="tablist" aria-label="左侧面板">
-          <button type="button" role="tab" aria-selected={leftPanel === 'components'} className={leftPanel === 'components' ? 'is-active' : ''} onClick={() => setLeftPanel('components')}>组件列表</button>
+          <button type="button" role="tab" aria-selected={leftPanel === 'components'} className={leftPanel === 'components' ? 'is-active' : ''} onClick={() => setLeftPanel('components')} disabled={Boolean(pendingPatch)}>组件列表</button>
           <button type="button" role="tab" aria-selected={leftPanel === 'agent'} className={leftPanel === 'agent' ? 'is-active' : ''} onClick={() => setLeftPanel('agent')}>AI 助手{pendingPatch ? <span className="notification-dot" /> : null}</button>
         </div>
         <div className="design-settings-title">组件设置</div>
@@ -128,11 +141,11 @@ export function DesignPage({ id }: { id: string }) {
           <div className={`agent-chat-log${chatLog.length === 0 ? ' is-empty' : ''}`}>
             {chatLog.length === 0 ? <div className="agent-empty-state"><span>✦</span><strong>从一句话开始设计</strong><p>试试“创建一道关于光合作用的单选题，包含 4 个选项”</p></div> : chatLog.map((item, index) => <div className={item.role === 'user' ? 'chat-message is-user' : 'chat-message'} key={`${index}-${item.role}-${item.content}`}>{item.content}</div>)}
           </div>
-          {pendingPatch ? <div className="agent-patch-preview"><strong>补丁预览</strong><p>{pendingPatch.summary}</p><ol>{pendingPatch.ops.map((op, index) => <li key={index}>{op.op}{op.op === 'insertChild' ? ` → ${op.node.type}` : ` → ${op.targetId}`}</li>)}</ol><div><button className="button-primary" type="button" onClick={applyPending}>确认应用</button><button className="button-ghost" type="button" onClick={() => setPendingPatch(null)}>拒绝</button></div></div> : null}
+          {pendingPatch ? <div className="agent-patch-preview"><strong>画布改动预览</strong><p>{pendingPatch.summary}</p><ol>{pendingPatch.ops.map((op, index) => <li key={index}>{op.op}{op.op === 'insertChild' ? ` → ${op.node.type}` : ` → ${op.targetId}`}</li>)}</ol><div><button className="button-primary" type="button" onClick={confirmPending}>确认改动</button><button className="button-ghost" type="button" onClick={rejectPending}>拒绝并回退</button></div></div> : null}
           {agentError ? <div className="agent-error" role="alert">{agentError}</div> : null}
           <div className="agent-composer">
-            <textarea value={chatInput} onChange={(event) => setChatInput(event.target.value)} onKeyDown={(event) => { if (event.key === 'Enter' && !event.shiftKey) { event.preventDefault(); void sendChat(); } }} placeholder="描述你想创建或修改的题型…" disabled={chatBusy} />
-            <div className="agent-composer-footer"><span>Enter 发送 · Shift+Enter 换行</span><button className="agent-send" type="button" aria-label={chatBusy ? '取消生成' : '发送'} onClick={() => chatBusy ? cancelChat() : void sendChat()} disabled={!chatBusy && !chatInput.trim()}>{chatBusy ? '停止' : '↑'}</button></div>
+            <textarea value={chatInput} onChange={(event) => setChatInput(event.target.value)} onKeyDown={(event) => { if (event.key === 'Enter' && !event.shiftKey) { event.preventDefault(); void sendChat(); } }} placeholder={pendingPatch ? '请先确认或拒绝当前改动' : '描述你想创建或修改的题型…'} disabled={chatBusy || Boolean(pendingPatch)} />
+            <div className="agent-composer-footer"><span>Enter 发送 · Shift+Enter 换行</span><button className="agent-send" type="button" aria-label={chatBusy ? '取消生成' : '发送'} onClick={() => chatBusy ? cancelChat() : void sendChat()} disabled={Boolean(pendingPatch) || (!chatBusy && !chatInput.trim())}>{chatBusy ? '停止' : '↑'}</button></div>
           </div>
         </aside>
       </section>
