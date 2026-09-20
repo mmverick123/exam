@@ -5,6 +5,12 @@ const root = process.cwd();
 const pnpmCli = process.env.npm_execpath;
 if (!pnpmCli) throw new Error('请通过 pnpm dev 启动项目');
 
+const pnpmExtension = path.extname(pnpmCli).toLowerCase();
+const pnpmCommand = ['.js', '.cjs', '.mjs'].includes(pnpmExtension)
+  ? process.execPath
+  : pnpmCli;
+const pnpmPrefixArgs = pnpmCommand === process.execPath ? [pnpmCli] : [];
+
 const definitions = [
   { name: 'agent', cwd: path.join(root, 'services', 'agent'), script: 'dev' },
   { name: 'platform-api', cwd: path.join(root, 'apps', 'platform'), script: 'dev' },
@@ -12,7 +18,7 @@ const definitions = [
 ];
 
 const children = definitions.map(({ name, cwd, script }) => {
-  const child = spawn(process.execPath, [pnpmCli, script], {
+  const child = spawn(pnpmCommand, [...pnpmPrefixArgs, script], {
     cwd,
     env: process.env,
     stdio: ['inherit', 'pipe', 'pipe'],
