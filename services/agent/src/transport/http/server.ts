@@ -19,7 +19,7 @@ function writeSse(reply: { raw: { write: (chunk: string) => boolean } }, event: 
 }
 
 export function buildAgentServer(providerFactory: () => AgentProvider = defaultProvider): FastifyInstance {
-  const app = Fastify({ bodyLimit: 256 * 1024 });
+  const app = Fastify({ bodyLimit: 256 * 1024, logger: process.env.NODE_ENV !== 'test' });
   app.post<{ Body: AgentRequest }>('/agent/chat', async (request, reply) => {
     if (request.headers['x-agent-token'] !== SERVICE_TOKEN) return reply.code(401).send({ error: 'UNAUTHORIZED' });
     const body = request.body;
@@ -39,22 +39,37 @@ export function buildAgentServer(providerFactory: () => AgentProvider = defaultP
     try {
       const session = body.sessionId ? getSession(body.sessionId) : undefined;
       if (session && session.requestCount >= 30 && Date.now() - session.windowStartedAt < 60_000) {
+        request.log.warn({ sessionId: body.sessionId, agentEvent: 'error', code: 'RATE_LIMITED' }, 'agent workflow event');
         writeSse(reply, 'error', { code: 'RATE_LIMITED', message: '会话请求过于频繁' });
         reply.raw.end(); return;
       }
       const estimatedInputTokens = Math.ceil((body.message.length + JSON.stringify(body.questionOutline).length) / 4);
       if (estimatedInputTokens > 64_000 || (session?.estimatedTokens ?? 0) + estimatedInputTokens > 100_000) {
+        request.log.warn({ sessionId: body.sessionId, agentEvent: 'error', code: 'TOKEN_LIMIT_EXCEEDED' }, 'agent workflow event');
         writeSse(reply, 'error', { code: 'TOKEN_LIMIT_EXCEEDED', message: '请求或会话 token 预算已达上限' });
         reply.raw.end(); return;
       }
       if (session) { session.requestCount += 1; session.estimatedTokens += estimatedInputTokens; }
-      const result = await runAgent({ ...body, history: session?.turns, signal: controller.signal, onEvent: (event) => { if (!ended) writeSse(reply, event.event, event.data); } }, providerFactory());
+      const result = await runAgent({
+        ...body,
+        history: session?.turns,
+        signal: controller.signal,
+        onEvent: (event) => {
+          const data = event.event === 'patch'
+            ? { summary: event.data.summary, operationCount: Array.isArray(event.data.ops) ? event.data.ops.length : 0 }
+            : event.data;
+          const log = event.event === 'error' ? request.log.warn.bind(request.log) : request.log.info.bind(request.log);
+          log({ sessionId: body.sessionId, agentEvent: event.event, data }, 'agent workflow event');
+          if (!ended) writeSse(reply, event.event, event.data);
+        },
+      }, providerFactory());
       if (body.sessionId) recordSession(body.sessionId, result.events, body.message, result.patch);
       reply.raw.end();
       ended = true;
     } catch (error) {
       if (!ended && error instanceof UnsupportedContractVersionError) writeSse(reply, 'error', { code: error.code, message: error.message });
       else if (!ended && (error as Error).name !== 'AbortError') writeSse(reply, 'error', { code: 'AGENT_FAILED', message: String((error as Error).message ?? error) });
+      if ((error as Error).name !== 'AbortError') request.log.error({ err: error, sessionId: body.sessionId }, 'agent workflow failed');
       reply.raw.end();
       ended = true;
     } finally {

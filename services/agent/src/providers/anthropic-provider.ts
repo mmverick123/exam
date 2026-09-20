@@ -29,6 +29,20 @@ export function normalizePlanResult(value: Partial<PlanResult>, context: Provide
   };
 }
 
+export function fallbackPlanResult(context: ProviderContext): PlanResult {
+  const widgets = context.adapter.agentWidgetList();
+  const selectedTypes = widgets
+    .filter((widget) => context.message.includes(widget.displayName) || context.message.includes(widget.type))
+    .map((widget) => widget.type);
+  if (selectedTypes.includes('question-group')) selectedTypes.push('stem', 'essay');
+  return normalizePlanResult({ steps: ['根据用户描述生成并定位组件'], selectedTypes }, context);
+}
+
+export function extractToolInput<T>(content: readonly { type: string; name?: string; input?: unknown }[], toolName: string): T | undefined {
+  const block = content.find((item) => item.type === 'tool_use' && item.name === toolName);
+  return block?.input as T | undefined;
+}
+
 export class AnthropicProvider implements AgentProvider {
   private readonly client: Anthropic;
   private readonly usage: ProviderUsage = { inputTokens: 0, outputTokens: 0 };
@@ -57,16 +71,36 @@ export class AnthropicProvider implements AgentProvider {
   }
 
   async plan(context: ProviderContext): Promise<PlanResult> {
+    const widgets = context.adapter.agentWidgetList();
     const response = await this.client.messages.create({
       model: this.generationModel,
       max_tokens: 512,
-      system: '根据组件清单规划题型结构，只输出 JSON。',
-      messages: [{ role: 'user', content: JSON.stringify({ history: context.history, message: context.message, widgets: context.adapter.agentWidgetList(), outline: context.adapter.outline(context.outline) }) }],
+      system: '根据组件清单规划题型结构，必须调用 emit_plan 工具。',
+      messages: [{ role: 'user', content: JSON.stringify({ history: context.history, message: context.message, widgets, outline: context.adapter.outline(context.outline) }) }],
+      tools: [{
+        name: 'emit_plan',
+        description: '输出题型修改计划及需要使用的组件类型',
+        input_schema: {
+          type: 'object',
+          properties: {
+            steps: { type: 'array', items: { type: 'string' } },
+            selectedTypes: { type: 'array', items: { type: 'string', enum: widgets.map((widget) => widget.type) } },
+          },
+          required: ['steps', 'selectedTypes'],
+          additionalProperties: false,
+        },
+      }],
+      tool_choice: { type: 'tool', name: 'emit_plan' },
     }, { signal: context.signal });
     this.recordUsage(response.usage);
+    const toolInput = extractToolInput<Partial<PlanResult>>(response.content, 'emit_plan');
+    if (toolInput) return normalizePlanResult(toolInput, context);
     const text = response.content.find((block) => block.type === 'text');
-    const parsed = parseModelJson<Partial<PlanResult>>(text?.type === 'text' ? text.text : '{}', 'plan');
-    return normalizePlanResult(parsed, context);
+    try {
+      return normalizePlanResult(parseModelJson<Partial<PlanResult>>(text?.type === 'text' ? text.text : '', 'plan'), context);
+    } catch {
+      return fallbackPlanResult(context);
+    }
   }
 
   async generate(context: ProviderContext, plan: PlanResult): Promise<QuestionPatch> {

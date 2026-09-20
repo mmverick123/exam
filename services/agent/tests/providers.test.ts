@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
 
-import { normalizePlanResult, parseModelJson } from '../src/providers/anthropic-provider';
+import { extractToolInput, fallbackPlanResult, normalizePlanResult, parseModelJson } from '../src/providers/anthropic-provider';
 import { buildContractBundles, resolveBundle } from '../src/contracts/bundles';
 import { CONTRACT_VERSION, DEFAULT_FORM_CONFIG, type QuestionJson } from '@exam/lowcode/contract';
 
@@ -24,5 +24,17 @@ describe('Anthropic model JSON parsing', () => {
 
   it('fills safe plan defaults when the model omits selected types', () => {
     expect(normalizePlanResult({ steps: ['开始'] }, context())).toEqual({ steps: ['开始'], selectedTypes: ['stem', 'single-choice'] });
+  });
+
+  it('reads a forced plan tool response', () => {
+    expect(extractToolInput([{ type: 'text' }, { type: 'tool_use', name: 'emit_plan', input: { steps: ['插入题目'], selectedTypes: ['single-choice'] } }], 'emit_plan'))
+      .toEqual({ steps: ['插入题目'], selectedTypes: ['single-choice'] });
+  });
+
+  it('infers an explicitly requested widget type when plan JSON is unavailable', () => {
+    expect(fallbackPlanResult({ ...context(), message: '创建一道关于光合作用的单选题，在两道单选题之间' })).toEqual({
+      steps: ['根据用户描述生成并定位组件'],
+      selectedTypes: ['single-choice'],
+    });
   });
 });
