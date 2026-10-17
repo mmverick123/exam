@@ -7,6 +7,17 @@ import { api, platformToken } from '../services/api';
 
 interface Detail { id: number; name: string; currentVersion: number; publishedVersion: number; formJson: QuestionJson; }
 interface ChatMessage { role: 'user' | 'assistant'; content: string; }
+interface AgentPlanView { steps: string[]; targets: Array<{ id: string; type: string; label: string; path: string }>; assumptions: string[]; risk: 'low' | 'medium' | 'high'; acceptanceCriteria: string[]; validation?: 'checking' | 'passed' | 'repairing'; warningCount?: number; }
+
+function describePatchOp(op: QuestionPatch['ops'][number], targets: AgentPlanView['targets']): string {
+  const id = 'targetId' in op ? op.targetId : op.parentId;
+  const target = targets.find((item) => item.id === id);
+  const label = target?.label ?? '计划范围内组件';
+  if (op.op === 'insertChild') return `新增 ${op.node.type} 到「${label}」`;
+  if (op.op === 'updateOptions') return `修改「${label}」的配置`;
+  if (op.op === 'remove') return `删除「${label}」`;
+  return `移动「${label}」`;
+}
 
 function errorMessage(error: unknown): string {
   const raw = error instanceof Error ? error.message : String(error);
@@ -26,6 +37,7 @@ export function DesignPage({ id }: { id: string }) {
   const [chatLog, setChatLog] = useState<ChatMessage[]>([]);
   const [agentError, setAgentError] = useState<string | null>(null);
   const [pendingPatch, setPendingPatch] = useState<QuestionPatch | null>(null);
+  const [agentPlan, setAgentPlan] = useState<AgentPlanView | null>(null);
   const [chatBusy, setChatBusy] = useState(false);
   const [leftPanel, setLeftPanel] = useState<'components' | 'agent'>('components');
   const abortRef = useRef<AbortController | null>(null);
@@ -51,7 +63,7 @@ export function DesignPage({ id }: { id: string }) {
   const cancelChat = () => { abortRef.current?.abort(); abortRef.current = null; setChatBusy(false); };
   const sendChat = async () => {
     if (!chatInput.trim() || chatBusy) return;
-    const text = chatInput.trim(); setChatInput(''); setChatBusy(true); setPendingPatch(null); setAgentError(null); setChatLog((items) => [...items, { role: 'user', content: text }]);
+    const text = chatInput.trim(); setChatInput(''); setChatBusy(true); setPendingPatch(null); setAgentPlan(null); setAgentError(null); setChatLog((items) => [...items, { role: 'user', content: text }]);
     const controller = new AbortController(); abortRef.current = controller;
     try {
       const response = await fetch('/api/agent/chat', { method: 'POST', headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${platformToken}` }, body: JSON.stringify({ sessionId: `design-${id}`, message: text, contractVersion: CONTRACT_VERSION, questionOutline: outlineForAgent(store.getJson()) }), signal: controller.signal });
@@ -64,7 +76,17 @@ export function DesignPage({ id }: { id: string }) {
           if (frame.startsWith(':')) continue;
           const event = frame.match(/^event:\s*(\w+)\ndata:\s*(.+)$/s); if (!event) continue;
           const data = JSON.parse(event[2]) as Record<string, unknown>;
-          if (event[1] === 'message') {
+          if (event[1] === 'plan') {
+            setAgentPlan({
+              steps: Array.isArray(data.steps) ? data.steps.map(String) : [],
+              targets: Array.isArray(data.targets) ? data.targets as AgentPlanView['targets'] : [],
+              assumptions: Array.isArray(data.assumptions) ? data.assumptions.map(String) : [],
+              risk: data.risk === 'high' || data.risk === 'medium' ? data.risk : 'low',
+              acceptanceCriteria: Array.isArray(data.acceptanceCriteria) ? data.acceptanceCriteria.map(String) : [],
+            });
+          } else if (event[1] === 'validation') {
+            setAgentPlan((current) => current ? { ...current, validation: data.valid === true ? 'passed' : 'repairing', warningCount: Array.isArray(data.warnings) ? data.warnings.length : 0 } : current);
+          } else if (event[1] === 'message') {
             const delta = String(data.delta ?? '');
             setChatLog((items) => {
               const last = items.at(-1);
@@ -81,7 +103,7 @@ export function DesignPage({ id }: { id: string }) {
               setAgentError('改动预览失败，画布未发生变化。');
             }
           }
-          else if (event[1] === 'error') setAgentError('未能生成可应用的改动，请调整描述后重试。');
+          else if (event[1] === 'error') setAgentError(data.code === 'CLARIFICATION_REQUIRED' ? String(data.message ?? '请补充目标组件信息。') : data.code === 'REPAIR_LIMIT_EXCEEDED' ? '改动未通过校验，系统已停止重试，画布没有应用本次结果。请缩小修改范围后重试。' : data.code === 'PATCH_SCOPE_VIOLATION' ? '候选改动超出了计划范围，已拦截且未应用。请重新描述目标组件。' : '未能生成可应用的改动，请调整描述后重试。');
         }
       }
     } catch (error) { if ((error as Error).name !== 'AbortError') setAgentError('AI 助手暂时不可用，请稍后重试。'); }
@@ -141,7 +163,8 @@ export function DesignPage({ id }: { id: string }) {
           <div className={`agent-chat-log${chatLog.length === 0 ? ' is-empty' : ''}`}>
             {chatLog.length === 0 ? <div className="agent-empty-state"><span>✦</span><strong>从一句话开始设计</strong><p>试试“创建一道关于光合作用的单选题，包含 4 个选项”</p></div> : chatLog.map((item, index) => <div className={item.role === 'user' ? 'chat-message is-user' : 'chat-message'} key={`${index}-${item.role}-${item.content}`}>{item.content}</div>)}
           </div>
-          {pendingPatch ? <div className="agent-patch-preview"><strong>画布改动预览</strong><p>{pendingPatch.summary}</p><ol>{pendingPatch.ops.map((op, index) => <li key={index}>{op.op}{op.op === 'insertChild' ? ` → ${op.node.type}` : ` → ${op.targetId}`}</li>)}</ol><div><button className="button-primary" type="button" onClick={confirmPending}>确认改动</button><button className="button-ghost" type="button" onClick={rejectPending}>拒绝并回退</button></div></div> : null}
+          {agentPlan ? <div className={`agent-plan-preview risk-${agentPlan.risk}`}><strong>执行计划</strong>{agentPlan.targets.length ? <p>目标：{agentPlan.targets.map((target) => `${target.label}（${target.path}）`).join('、')}</p> : null}{agentPlan.steps.map((step, index) => <p key={index}>{index + 1}. {step}</p>)}{agentPlan.assumptions.map((assumption, index) => <p key={`assumption-${index}`}>假设：{assumption}</p>)}{agentPlan.acceptanceCriteria.map((criterion, index) => <p key={`criterion-${index}`}>验收：{criterion}</p>)}<small>风险：{agentPlan.risk === 'high' ? '高' : agentPlan.risk === 'medium' ? '中' : '低'}{agentPlan.validation ? ` · ${agentPlan.validation === 'passed' ? `校验通过${agentPlan.warningCount ? `，${agentPlan.warningCount} 条提示` : ''}` : agentPlan.validation === 'repairing' ? '正在校验/修复' : '待校验'}` : ''}</small></div> : null}
+          {pendingPatch ? <div className="agent-patch-preview"><strong>候选改动预览</strong><p>{pendingPatch.summary}</p><p className="agent-confirm-note">确认后保留在当前草稿；仍需点击页面顶部“保存”才生成新版本。</p><ol>{pendingPatch.ops.map((op, index) => <li key={index}>{describePatchOp(op, agentPlan?.targets ?? [])}</li>)}</ol><div><button className="button-primary" type="button" onClick={confirmPending}>确认改动</button><button className="button-ghost" type="button" onClick={rejectPending}>拒绝并回退</button></div></div> : null}
           {agentError ? <div className="agent-error" role="alert">{agentError}</div> : null}
           <div className="agent-composer">
             <textarea value={chatInput} onChange={(event) => setChatInput(event.target.value)} onKeyDown={(event) => { if (event.key === 'Enter' && !event.shiftKey) { event.preventDefault(); void sendChat(); } }} placeholder={pendingPatch ? '请先确认或拒绝当前改动' : '描述你想创建或修改的题型…'} disabled={chatBusy || Boolean(pendingPatch)} />

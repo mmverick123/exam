@@ -2,6 +2,7 @@ import Anthropic from '@anthropic-ai/sdk';
 
 import type { QuestionPatch, ValidationIssue } from '@exam/lowcode/contract';
 import { buildEmitPatchToolSchema } from '../contracts/tool-schema';
+import { buildNodeRefs } from '../contracts/node-refs';
 import { hasContent } from './shared';
 import type { AgentProvider, IntentResult, PlanResult, ProviderContext, ProviderUsage } from './types';
 
@@ -20,22 +21,43 @@ export function parseModelJson<T>(text: string, label: string): T {
 
 export function normalizePlanResult(value: Partial<PlanResult>, context: ProviderContext): PlanResult {
   const availableTypes = new Set(context.adapter.agentWidgetList().map((widget) => widget.type));
+  const refs = context.nodeRefs ?? buildNodeRefs(context.outline);
+  const validIds = new Set(refs.map((ref) => ref.id));
+  const containerIds = new Set(refs.filter((ref) => context.adapter.isContainer(ref.type)).map((ref) => ref.id));
   const selectedTypes = Array.isArray(value.selectedTypes)
     ? value.selectedTypes.filter((type): type is string => typeof type === 'string' && availableTypes.has(type))
     : [];
+  const targetIds = Array.isArray(value.targetIds) ? [...new Set(value.targetIds.filter((id): id is string => typeof id === 'string' && validIds.has(id)))] : [];
+  const parentIds = Array.isArray(value.parentIds) ? [...new Set(value.parentIds.filter((id): id is string => typeof id === 'string' && containerIds.has(id)))] : [];
+  const excludedIds = Array.isArray(value.excludedIds) ? [...new Set(value.excludedIds.filter((id): id is string => typeof id === 'string' && validIds.has(id)))] : [];
+  const requiresClarification = value.requiresClarification === true;
   return {
     steps: Array.isArray(value.steps) ? value.steps.filter((step): step is string => typeof step === 'string') : [],
     selectedTypes: selectedTypes.length > 0 ? selectedTypes : ['stem', 'single-choice'],
+    targetIds,
+    parentIds,
+    excludedIds,
+    assumptions: Array.isArray(value.assumptions) ? value.assumptions.filter((item): item is string => typeof item === 'string') : [],
+    acceptanceCriteria: Array.isArray(value.acceptanceCriteria) ? value.acceptanceCriteria.filter((item): item is string => typeof item === 'string') : [],
+    groups: Array.isArray(value.groups) ? value.groups.filter((item) => item && typeof item.id === 'string' && typeof item.title === 'string' && ['low', 'medium', 'high'].includes(item.risk)) : [],
+    risk: value.risk === 'high' || value.risk === 'medium' ? value.risk : 'low',
+    requiresClarification,
+    ...(requiresClarification && typeof value.clarificationQuestion === 'string' ? { clarificationQuestion: value.clarificationQuestion } : {}),
   };
 }
 
 export function fallbackPlanResult(context: ProviderContext): PlanResult {
+  const refs = context.nodeRefs ?? buildNodeRefs(context.outline);
   const widgets = context.adapter.agentWidgetList();
-  const selectedTypes = widgets
-    .filter((widget) => context.message.includes(widget.displayName) || context.message.includes(widget.type))
-    .map((widget) => widget.type);
-  if (selectedTypes.includes('question-group')) selectedTypes.push('stem', 'essay');
-  return normalizePlanResult({ steps: ['根据用户描述生成并定位组件'], selectedTypes }, context);
+  const selectedTypes = widgets.filter((widget) => context.message.includes(widget.displayName) || context.message.includes(widget.type)).map((widget) => widget.type);
+  const page = refs.find((ref) => ref.type === 'page');
+  return normalizePlanResult({
+    steps: ['根据用户描述生成并定位组件'],
+    selectedTypes: selectedTypes.length ? selectedTypes : ['stem', 'single-choice'],
+    targetIds: page ? [page.id] : [],
+    parentIds: page ? [page.id] : [],
+    risk: /删除|移除|答案|正确选项|移动/.test(context.message) ? 'high' : 'low',
+  }, context);
 }
 
 export function extractToolInput<T>(content: readonly { type: string; name?: string; input?: unknown }[], toolName: string): T | undefined {
@@ -72,21 +94,32 @@ export class AnthropicProvider implements AgentProvider {
 
   async plan(context: ProviderContext): Promise<PlanResult> {
     const widgets = context.adapter.agentWidgetList();
+    const refs = context.nodeRefs ?? buildNodeRefs(context.outline);
+    const idEnum = refs.map((ref) => ref.id);
+    const containerIdEnum = refs.filter((ref) => context.adapter.isContainer(ref.type)).map((ref) => ref.id);
     const response = await this.client.messages.create({
       model: this.generationModel,
-      max_tokens: 512,
-      system: '根据组件清单规划题型结构，必须调用 emit_plan 工具。',
-      messages: [{ role: 'user', content: JSON.stringify({ history: context.history, message: context.message, widgets, outline: context.adapter.outline(context.outline) }) }],
+      max_tokens: 1024,
+      system: '先明确用户真正要修改的目标组件和允许新增的父容器。不要把“可用组件”误当成“目标组件”。若指代存在歧义，设置 requiresClarification 并提出一个简短问题。高风险删除、移动或答案修改标记 high。必须调用 emit_plan。',
+      messages: [{ role: 'user', content: JSON.stringify({ history: context.history, message: context.message, widgets, nodes: refs, outline: context.adapter.outline(context.outline) }) }],
       tools: [{
         name: 'emit_plan',
-        description: '输出题型修改计划及需要使用的组件类型',
+        description: '输出带目标范围、风险和验收条件的题型变更计划',
         input_schema: {
           type: 'object',
           properties: {
             steps: { type: 'array', items: { type: 'string' } },
             selectedTypes: { type: 'array', items: { type: 'string', enum: widgets.map((widget) => widget.type) } },
+            targetIds: { type: 'array', items: { type: 'string', enum: idEnum } },
+            parentIds: { type: 'array', items: { type: 'string', enum: containerIdEnum } },
+            excludedIds: { type: 'array', items: { type: 'string', enum: idEnum } },
+            assumptions: { type: 'array', items: { type: 'string' } },
+            acceptanceCriteria: { type: 'array', items: { type: 'string' } },
+            risk: { type: 'string', enum: ['low', 'medium', 'high'] },
+            requiresClarification: { type: 'boolean' },
+            clarificationQuestion: { type: 'string' },
           },
-          required: ['steps', 'selectedTypes'],
+          required: ['steps', 'selectedTypes', 'targetIds', 'parentIds', 'excludedIds', 'assumptions', 'acceptanceCriteria', 'risk', 'requiresClarification'],
           additionalProperties: false,
         },
       }],
@@ -94,13 +127,10 @@ export class AnthropicProvider implements AgentProvider {
     }, { signal: context.signal });
     this.recordUsage(response.usage);
     const toolInput = extractToolInput<Partial<PlanResult>>(response.content, 'emit_plan');
-    if (toolInput) return normalizePlanResult(toolInput, context);
+    if (toolInput) return normalizePlanResult(toolInput, { ...context, nodeRefs: refs });
     const text = response.content.find((block) => block.type === 'text');
-    try {
-      return normalizePlanResult(parseModelJson<Partial<PlanResult>>(text?.type === 'text' ? text.text : '', 'plan'), context);
-    } catch {
-      return fallbackPlanResult(context);
-    }
+    try { return normalizePlanResult(parseModelJson<Partial<PlanResult>>(text?.type === 'text' ? text.text : '', 'plan'), { ...context, nodeRefs: refs }); }
+    catch { return fallbackPlanResult({ ...context, nodeRefs: refs }); }
   }
 
   async generate(context: ProviderContext, plan: PlanResult): Promise<QuestionPatch> {
@@ -108,8 +138,8 @@ export class AnthropicProvider implements AgentProvider {
     const response = await this.client.messages.create({
       model: this.generationModel,
       max_tokens: 4096,
-      system: '生成题型补丁。必须调用 emit_patch 工具，不得输出全量 JSON。',
-      messages: [{ role: 'user', content: JSON.stringify({ message: context.message, outline: context.adapter.outline(context.outline), defaults: Object.fromEntries(plan.selectedTypes.map((type) => [type, context.adapter.defaultOptions(type)])) }) }],
+      system: '生成题型补丁。只能修改计划 targetIds 内的节点，只能在 parentIds 指定的容器新增内容，不能触碰 excludedIds。必须调用 emit_patch 工具，不得输出全量 JSON。',
+      messages: [{ role: 'user', content: JSON.stringify({ message: context.message, plan, outline: context.adapter.outline(context.outline), defaults: Object.fromEntries(plan.selectedTypes.map((type) => [type, context.adapter.defaultOptions(type)])) }) }],
       tools: [{ name: 'emit_patch', description: '输出 QuestionPatch', input_schema: toolSchema as unknown as { type: 'object'; [key: string]: unknown } }],
       tool_choice: { type: 'tool', name: 'emit_patch' },
     }, { signal: context.signal });
@@ -120,7 +150,7 @@ export class AnthropicProvider implements AgentProvider {
   }
 
   async repair(context: ProviderContext, plan: PlanResult, errors: ValidationIssue[]): Promise<QuestionPatch | null> {
-    return this.generate({ ...context, message: `${context.message}\n请修复以下错误：${JSON.stringify(errors)}` }, plan);
+    return this.generate({ ...context, message: `${context.message}\\n请修复以下错误，但不得扩大计划目标范围：${JSON.stringify(errors)}` }, plan);
   }
 
   getUsage(): ProviderUsage { return { ...this.usage }; }

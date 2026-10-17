@@ -8,6 +8,7 @@ import {
 } from '@exam/lowcode/contract';
 
 import { buildContractBundles, resolveBundle, type ContractAdapter } from '../contracts/bundles';
+import { buildNodeRefs, summarizeRefs, validatePatchScope, validatePlanScope } from './scope';
 import { defaultProvider, type AgentProvider, type ConversationTurn, type IntentResult, type PlanResult, type ProviderUsage } from '../providers';
 
 export type AgentState = 'Intent' | 'Plan' | 'Generate' | 'Validate' | 'Repair' | 'Degrade' | 'Deliver' | 'Reject';
@@ -59,7 +60,7 @@ export async function runAgent(
   }
 
   assertNotAborted(request.signal);
-  const context = { adapter, outline, message: request.message, history: request.history, signal: request.signal };
+  const context = { adapter, outline, message: request.message, history: request.history, signal: request.signal, nodeRefs: buildNodeRefs(outline) };
   const intent = await provider.intent(context);
   assertNotAborted(request.signal);
   if (intent.kind === 'irrelevant') {
@@ -69,7 +70,19 @@ export async function runAgent(
 
   const plan = await provider.plan(context);
   assertNotAborted(request.signal);
-  emit(events, 'plan', { steps: plan.steps }, request.onEvent);
+  const targetSet = new Set(plan.targetIds ?? []);
+  emit(events, 'plan', { steps: plan.steps, targets: summarizeRefs(outline).filter((ref) => targetSet.has(ref.id)), targetIds: plan.targetIds ?? [], parentIds: plan.parentIds ?? [], excludedIds: plan.excludedIds ?? [], assumptions: plan.assumptions ?? [], acceptanceCriteria: plan.acceptanceCriteria ?? [], risk: plan.risk ?? 'low', requiresClarification: plan.requiresClarification ?? false, clarificationQuestion: plan.clarificationQuestion }, request.onEvent);
+  if (plan.requiresClarification) {
+    const message = plan.clarificationQuestion ?? '当前请求的目标组件不够明确，请补充具体题目或组件。';
+    emit(events, 'error', { code: 'CLARIFICATION_REQUIRED', message }, request.onEvent);
+    return { state: 'Reject', intent, plan, repairCount: 0, events, usage: providerUsage(provider) };
+  }
+  const planErrors = validatePlanScope(plan);
+  if (planErrors.length > 0) {
+    emit(events, 'validation', { valid: false, errors: planErrors, repairCount: 0 }, request.onEvent);
+    emit(events, 'error', { code: planErrors[0]?.code ?? 'INVALID_PLAN', message: planErrors[0]?.message ?? '计划无法安全执行' }, request.onEvent);
+    return { state: 'Reject', intent, plan, errors: planErrors, repairCount: 0, events, usage: providerUsage(provider) };
+  }
   let patch = await provider.generate(context, plan);
   let repairCount = 0;
   let lastErrors: ValidationIssue[] = [];
@@ -77,6 +90,11 @@ export async function runAgent(
   for (;;) {
     assertNotAborted(request.signal);
     try {
+      const scopeErrors = validatePatchScope(outline, patch, plan);
+      if (scopeErrors.length > 0) {
+        lastErrors = scopeErrors;
+        emit(events, 'validation', { valid: false, errors: scopeErrors, repairCount }, request.onEvent);
+      } else {
       const applied = applyQuestionPatch(outline, patch);
       const validation = validate(applied.json);
       const seenBlocking = new Map<string, number>();
@@ -88,15 +106,16 @@ export async function runAgent(
         return count > (baselineBlocking.get(key) ?? 0);
       });
       const blockingIssues = [...validation.errors, ...newBlockingWarnings];
-      if (blockingIssues.length === 0) {
+      if (scopeErrors.length === 0 && blockingIssues.length === 0) {
         emit(events, 'patch', { ops: patch.ops, summary: patch.summary }, request.onEvent);
         emit(events, 'validation', { valid: true, warnings: validation.warnings }, request.onEvent);
         const usage = providerUsage(provider);
         emit(events, 'done', { tokens: usage.inputTokens + usage.outputTokens, inputTokens: usage.inputTokens, outputTokens: usage.outputTokens, elapsed: Date.now() - startedAt, repairCount }, request.onEvent);
         return { state: 'Deliver', patch, json: applied.json, intent, plan, warnings: validation.warnings, repairCount, events, usage };
       }
-      lastErrors = blockingIssues;
-      emit(events, 'validation', { valid: false, errors: blockingIssues, repairCount }, request.onEvent);
+      lastErrors = [...scopeErrors, ...blockingIssues];
+      emit(events, 'validation', { valid: false, errors: lastErrors, repairCount }, request.onEvent);
+      }
     } catch (error) {
       lastErrors = [{ code: 'PATCH_INVALID', path: '', message: error instanceof Error ? error.message : String(error), severity: 'error' }];
       emit(events, 'validation', { valid: false, errors: lastErrors, repairCount }, request.onEvent);

@@ -23,7 +23,7 @@ describe('Anthropic model JSON parsing', () => {
   });
 
   it('fills safe plan defaults when the model omits selected types', () => {
-    expect(normalizePlanResult({ steps: ['开始'] }, context())).toEqual({ steps: ['开始'], selectedTypes: ['stem', 'single-choice'] });
+    expect(normalizePlanResult({ steps: ['开始'] }, context())).toMatchObject({ steps: ['开始'], selectedTypes: ['stem', 'single-choice'], targetIds: [], parentIds: [], risk: 'low' });
   });
 
   it('reads a forced plan tool response', () => {
@@ -32,9 +32,12 @@ describe('Anthropic model JSON parsing', () => {
   });
 
   it('infers an explicitly requested widget type when plan JSON is unavailable', () => {
-    expect(fallbackPlanResult({ ...context(), message: '创建一道关于光合作用的单选题，在两道单选题之间' })).toEqual({
+    expect(fallbackPlanResult({ ...context(), message: '创建一道关于光合作用的单选题，在两道单选题之间' })).toMatchObject({
       steps: ['根据用户描述生成并定位组件'],
       selectedTypes: ['single-choice'],
+      targetIds: ['page_root'],
+      parentIds: ['page_root'],
+      risk: 'low',
     });
   });
 });

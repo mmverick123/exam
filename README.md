@@ -10,7 +10,7 @@
        └──────────────────── platform SSE proxy → Agent
 ```
 
-详细依赖方向见 [ARCHITECTURE.md](./docs/ARCHITECTURE.md)，完整设计与取舍见 [设计方案.md](./docs/设计方案.md)。
+详细依赖方向见 [ARCHITECTURE.md](./docs/ARCHITECTURE.md)，完整设计与取舍见 [设计方案.md](./docs/设计方案.md)。Agent 优化分析和其他项目文档见 [docs/README.md](./docs/README.md)。
 
 三项目安装、Agent key/URL、本机配置与 Compose 启动步骤见 [QUICKSTART.md](./docs/QUICKSTART.md)。
 
@@ -22,7 +22,7 @@
 pnpm dev
 ```
 
-打开 `http://127.0.0.1:5173/question-types`。本机敏感配置不会提交到仓库，具体字段见 [QUICKSTART.md](./QUICKSTART.md#2-本机运行时配置)。
+打开 `http://127.0.0.1:5173/question-types`。本机敏感配置不会提交到仓库，具体字段见 [QUICKSTART.md](./docs/QUICKSTART.md#2-本机运行时配置)。
 
 ## 本地验证
 
@@ -78,4 +78,3 @@ pnpm --dir apps/platform add @exam/lowcode@npm:@mmverick123/lowcode@<version> --
 2026-09-11 冻结用例 hash 为 `1e1be461766573c289ae02cecee032c173330968ab47ffac68ded97f6f368733`。确定性 Provider 的 Full 运行覆盖 48 条用例、两种策略、每条 3 次，共 288 次：一次通过率 95.83%，最终通过率 100%，平均修复 0.04 轮；每种策略各有 3 次层级违规进入 Repair 并收敛。该数据用于验证评测框架和修复闭环，不是 LLM 质量结论。真实单阶段/两阶段对比必须配置独立 Anthropic Eval Key。
 
 本机若未安装 Docker，仍可执行根目录 `pnpm verify`、`pnpm acceptance` 和上述 Eval；Compose 实际启动与 Caddy 转发验收需在具备 Docker 的环境补跑。
-

@@ -178,7 +178,13 @@
 .chat-message { align-self: flex-start; max-width: 90%; padding: 8px 10px; border-radius: 9px 9px 9px 2px; color: #526078; background: #f2f4f8; font-size: 12px; line-height: 1.5; }
 .chat-message.is-user { align-self: flex-end; border-radius: 9px 9px 2px; color: #fff; background: #3976ef; }
 .agent-patch-preview { margin: 0 14px 10px; padding: 12px; border: 1px solid #dce7ff; border-radius: 9px; background: #f7faff; font-size: 12px; }
+.agent-plan-preview { margin: 0 14px 10px; padding: 12px; border: 1px solid #e4e8f0; border-radius: 9px; background: #fbfcfe; color: #53627a; font-size: 12px; line-height: 1.45; }
+.agent-plan-preview strong { display: block; margin-bottom: 6px; color: #24324a; }
+.agent-plan-preview p { margin: 4px 0; }
+.agent-plan-preview small { display: inline-block; margin-top: 5px; color: #718096; }
+.agent-plan-preview.risk-high { border-color: #ffd7a3; background: #fffaf0; }
 .agent-patch-preview > strong { color: #285fc6; }
+.agent-confirm-note { padding: 7px 8px; border-radius: 6px; background: #fff; color: #66758b !important; }
 .agent-patch-preview p { color: #53627a; }
 .agent-patch-preview ol { max-height: 90px; overflow: auto; padding-left: 20px; color: #6d7889; }
 .agent-patch-preview > div { display: flex; gap: 6px; }

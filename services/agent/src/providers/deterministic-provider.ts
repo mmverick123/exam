@@ -57,7 +57,25 @@ export class DeterministicProvider implements AgentProvider {
 
   async plan(context: ProviderContext): Promise<PlanResult> {
     const selectedTypes = /材料|组合|子问/.test(context.message) ? ['question-group', 'stem', 'essay'] : context.message.includes('多选') ? ['multi-choice'] : ['stem', 'single-choice'];
-    return { steps: [`使用${selectedTypes.join('、')}表达用户需求`], selectedTypes };
+    const page = firstPage(context.outline);
+    const isMove = /移动|移到|上移|下移/.test(context.message);
+    const isExistingMutation = /删除|移除|选项|倒过来|倒序|反转|移动|移到|上移|下移|改成多选|变成多选/.test(context.message);
+    const candidates = isMove ? answerNodes(context.outline) : choiceNodes(context.outline);
+    const selected = candidates[requestedIndex(context.message)] ?? candidates[0];
+    const targetIds = selected && isExistingMutation ? [selected.node.id] : [page.id];
+    const parentIds = selected && isExistingMutation ? [selected.parent.id] : [page.id];
+    const risk = /删除|移除|移动|移到|上移|下移|答案|正确选项|改成多选|变成多选/.test(context.message) ? 'high' : 'low';
+    return {
+      steps: [`${isExistingMutation ? '定位并修改指定组件' : '在题型根容器中新增组件'}：${selected?.node.options.title ?? (isExistingMutation ? '目标组件' : '题型内容')}`],
+      selectedTypes,
+      targetIds,
+      parentIds,
+      excludedIds: [],
+      assumptions: selected && isExistingMutation ? [] : ['若未明确指定目标组件，将使用题型根容器作为新增位置'],
+      acceptanceCriteria: ['计划外组件和字段保持不变'],
+      risk,
+      requiresClarification: false,
+    };
   }
 
   async generate(context: ProviderContext, plan: PlanResult): Promise<QuestionPatch> {
@@ -104,8 +122,10 @@ export class DeterministicProvider implements AgentProvider {
     return { summary: `新增一道${getWidgetDefinition(type)!.displayName}`, ops: [{ op: 'insertChild', parentId: page.id, afterId: page.widgetList?.at(-1)?.id ?? null, node: choiceNode(type, extractTopic(context.message), optionCount(context.message)) }] };
   }
 
-  async repair(context: ProviderContext, _plan: PlanResult, _errors: ValidationIssue[]): Promise<QuestionPatch> {
+  async repair(context: ProviderContext, plan: PlanResult, _errors: ValidationIssue[]): Promise<QuestionPatch | null> {
     const page = firstPage(context.outline);
+    if (plan.parentIds && !plan.parentIds.includes(page.id)) return null;
+    if (plan.selectedTypes.length > 0 && !plan.selectedTypes.includes('single-choice')) return null;
     return { summary: '降级为追加合法单选题', ops: [{ op: 'insertChild', parentId: page.id, afterId: page.widgetList?.at(-1)?.id ?? null, node: choiceNode('single-choice', extractTopic(context.message), 4, 'tmp_repaired') }] };
   }
 }
