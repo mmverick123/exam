@@ -1,4 +1,4 @@
-import React, { forwardRef, useImperativeHandle, useRef, useState } from 'react';
+import React, { forwardRef, useCallback, useImperativeHandle, useRef, useState } from 'react';
 
 import {
   isContainer,
@@ -84,12 +84,19 @@ export function buildAnswerData(json: QuestionJson, answerData: AnswerData = {})
   return result;
 }
 
-function RenderNode({ node, mode, answerData, onAnswerChange }: {
+interface RenderNodeProps {
   node: WidgetNode;
   mode: RenderMode;
   answerData: AnswerData;
   onAnswerChange: (name: string, value: unknown) => void;
-}) {
+}
+
+function answerValue(node: WidgetNode, answerData: AnswerData): unknown {
+  const name = typeof node.options.name === 'string' ? node.options.name : node.id;
+  return answerData[name] ?? null;
+}
+
+const RenderNode = React.memo(function RenderNode({ node, mode, answerData, onAnswerChange }: RenderNodeProps) {
   if (isContainer(node.type)) {
     const Container = containerComponents[node.type];
     if (!Container) return null;
@@ -108,11 +115,18 @@ function RenderNode({ node, mode, answerData, onAnswerChange }: {
     <Field
       node={node}
       mode={mode as FieldMode}
-      value={answerData[name] ?? null}
+      value={answerValue(node, answerData)}
       onChange={(value) => onAnswerChange(name, value)}
     />
   );
-}
+}, (previous, next) => {
+  if (previous.node !== next.node || previous.mode !== next.mode || previous.onAnswerChange !== next.onAnswerChange) return false;
+  // Containers must pass a changed answer map to their descendants. Leaf
+  // widgets can compare only their own answer value and skip unrelated updates.
+  return isContainer(next.node.type)
+    ? previous.answerData === next.answerData
+    : Object.is(answerValue(previous.node, previous.answerData), answerValue(next.node, next.answerData));
+});
 
 export const QuestionRenderer = forwardRef<QuestionRendererHandle, QuestionRendererProps>(
   function QuestionRenderer({ json, answerData: initialAnswerData = {}, mode, onChange, className }, ref) {
@@ -120,13 +134,13 @@ export const QuestionRenderer = forwardRef<QuestionRendererHandle, QuestionRende
     const [currentJson, setCurrentJson] = useState<QuestionJson>(initialJson.current);
     const [answers, setAnswers] = useState<AnswerData>(() => buildAnswerData(initialJson.current, initialAnswerData));
 
-    const updateAnswer = (name: string, value: unknown) => {
+    const updateAnswer = useCallback((name: string, value: unknown) => {
       setAnswers((previous) => {
         const next = { ...previous, [name]: value };
         if (mode === 'answer') onChange?.(next);
         return next;
       });
-    };
+    }, [mode, onChange]);
 
     useImperativeHandle(ref, () => ({
       getAnswerData: () => ({ ...answers }),

@@ -1,4 +1,4 @@
-import React, { useEffect, useMemo, useState } from 'react';
+import React, { useCallback, useMemo, useState } from 'react';
 import { DndContext, DragOverlay, PointerSensor, KeyboardSensor, useSensor, useSensors, type DragEndEvent, type DragStartEvent } from '@dnd-kit/core';
 
 import { getWidgetDefinition, type QuestionJson, type WidgetNode } from '../../contract';
@@ -7,6 +7,7 @@ import { FormWidget } from './FormWidget';
 import { SettingPanel } from './SettingPanel';
 import { ToolbarPanel } from './ToolbarPanel';
 import { createDesignerStore, type DesignerStore } from '../state/store';
+import { useDesignerSelector } from '../state/useDesignerSelector';
 
 export interface QuestionDesignerProps {
   json?: QuestionJson;
@@ -21,12 +22,15 @@ export interface QuestionDesignerProps {
 export function QuestionDesigner({ json, store: externalStore, onChange, className, onPreview, onImportJson, onExportJson }: QuestionDesignerProps) {
   const ownedStore = useMemo(() => externalStore ?? createDesignerStore(json), [externalStore]);
   const store = externalStore ?? ownedStore;
-  const [, setVersion] = useState(0);
-  useEffect(() => store.subscribe(() => setVersion((version) => version + 1)), [store]);
-  const [selectedId, setSelectedId] = useState<string | null>(null);
   const [activeDrag, setActiveDrag] = useState<{ kind: string; label: string } | null>(null);
   const [recentNodeId, setRecentNodeId] = useState<string | null>(null);
-  const selectedNode = selectedId ? findNode(store.getJson().widgetList, selectedId) : null;
+  const selectedId = useDesignerSelector(store, (state) => state.selectedId);
+  const setSelectedId = useCallback((nodeId: string | null) => store.setSelectedId(nodeId), [store]);
+  const selectedNodeSelector = useCallback(
+    (state: ReturnType<DesignerStore['getSnapshot']>) => selectedId ? findNode(state.json.widgetList, selectedId) : null,
+    [selectedId],
+  );
+  const selectedNode = useDesignerSelector(store, selectedNodeSelector);
   const emitChange = () => onChange?.(store.getJson());
   const flashNode = (nodeId: string) => {
     setRecentNodeId(nodeId);
@@ -109,7 +113,7 @@ export function QuestionDesigner({ json, store: externalStore, onChange, classNa
       />
       <div className="exam-designer-body">
         <WidgetPanel onAdd={addToRoot} />
-        <FormWidget store={store} selectedId={selectedId} onSelect={setSelectedId} recentNodeId={recentNodeId} />
+        <FormWidget store={store} onSelect={setSelectedId} recentNodeId={recentNodeId} />
         <SettingPanel store={store} selectedNode={selectedNode} onUpdated={emitChange} />
       </div>
     </div>

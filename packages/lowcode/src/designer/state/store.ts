@@ -24,6 +24,15 @@ export interface DesignerState {
 
 export interface DesignerStore {
   getJson(): QuestionJson;
+  /** Internal live snapshot for selector-based React subscriptions. */
+  getSnapshot(): DesignerState;
+  getNode(nodeId: string): WidgetNode | null;
+  setSelectedId(nodeId: string | null): void;
+  subscribeSelector<T>(
+    selector: (state: DesignerState) => T,
+    listener: () => void,
+    equality?: (previous: T, next: T) => boolean,
+  ): () => void;
   setJson(json: QuestionJson): void;
   applyPatch(patch: QuestionPatch): void;
   insertNode(type: string, parentId: string, afterId?: string | null): WidgetNode;
@@ -100,12 +109,39 @@ class DesignerStoreImpl implements DesignerStore {
     return clone(this.state.getState().json);
   }
 
+  getSnapshot(): DesignerState {
+    return this.state.getState();
+  }
+
+  getNode(nodeId: string): WidgetNode | null {
+    return findNode(this.state.getState().json.widgetList, nodeId) ?? null;
+  }
+
+  setSelectedId(nodeId: string | null): void {
+    this.state.setState({ selectedId: nodeId });
+  }
+
   getState(): DesignerState {
     return this.state.getState();
   }
 
   subscribe(listener: () => void): () => void {
     return this.state.subscribe(listener);
+  }
+
+  subscribeSelector<T>(
+    selector: (state: DesignerState) => T,
+    listener: () => void,
+    equality: (previous: T, next: T) => boolean = Object.is,
+  ): () => void {
+    let previous = selector(this.state.getState());
+    return this.state.subscribe((nextState) => {
+      const next = selector(nextState);
+      if (!equality(previous, next)) {
+        previous = next;
+        listener();
+      }
+    });
   }
 
   setJson(json: QuestionJson): void {
@@ -226,7 +262,9 @@ class DesignerStoreImpl implements DesignerStore {
   }
 
   private commit(next: QuestionJson): void {
-    this.state.setState({ json: clone(next) });
+    // Keep the patch result's structural sharing in the live snapshot. History
+    // still receives isolated clones so undo/redo cannot mutate current state.
+    this.state.setState({ json: next });
     this.history = this.history.slice(0, this.cursor + 1);
     this.history.push(clone(next));
     if (this.history.length > 31) this.history.shift();

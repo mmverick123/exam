@@ -107,4 +107,40 @@ describe('designer store and patch application', () => {
     expect(store.redo()).toBe(true);
     expect(store.getJson().widgetList[0]!.widgetList?.map((node) => node.type)).toEqual(['divider', 'stem']);
   });
+
+  it('preserves unrelated node references and selector notifications', () => {
+    const store = createDesignerStore(structuredClone(fixtureFile.valid));
+    const before = store.getSnapshot().json;
+    const beforeStem = store.getNode('stem_1');
+    const beforeChoice = store.getNode('single_1');
+    let stemNotifications = 0;
+    let choiceNotifications = 0;
+    const findById = (id: string) => (state: ReturnType<typeof store.getSnapshot>) => {
+      const nodes = state.json.widgetList[0]?.widgetList ?? [];
+      return nodes.find((node) => node.id === id) ?? null;
+    };
+    const unsubscribeStem = store.subscribeSelector(findById('stem_1'), () => { stemNotifications += 1; });
+    const unsubscribeChoice = store.subscribeSelector(findById('single_1'), () => { choiceNotifications += 1; });
+
+    store.updateOptions('stem_1', { content: '<p>changed</p>' });
+
+    const after = store.getSnapshot().json;
+    expect(after).not.toBe(before);
+    expect(store.getNode('stem_1')).not.toBe(beforeStem);
+    expect(store.getNode('single_1')).toBe(beforeChoice);
+    expect(after.widgetList[0]!.widgetList?.[1]).toBe(before.widgetList[0]!.widgetList?.[1]);
+    expect(stemNotifications).toBe(1);
+    expect(choiceNotifications).toBe(0);
+    unsubscribeStem();
+    unsubscribeChoice();
+  });
+
+  it('does not reuse a removed child list during structural sharing', () => {
+    const store = createDesignerStore(structuredClone(fixtureFile.valid));
+    store.removeNode('single_1');
+    expect(store.getSnapshot().json.widgetList[0]!.widgetList).toEqual([
+      expect.objectContaining({ id: 'stem_1' }),
+    ]);
+    expect(store.validate().warnings.some((warning) => warning.code === 'NO_ANSWER_COMPONENT')).toBe(true);
+  });
 });

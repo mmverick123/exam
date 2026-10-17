@@ -4,16 +4,28 @@ import { useDraggable, useDroppable } from '@dnd-kit/core';
 import { containerComponents, fieldComponents } from '../../renderer';
 import { getWidgetDefinition, isContainer, type WidgetNode } from '../../contract';
 import type { DesignerStore } from '../state/store';
+import { useDesignerSelector } from '../state/useDesignerSelector';
 
 export interface FormWidgetProps {
   store: DesignerStore;
-  selectedId: string | null;
+  /** @deprecated Selection is now read from the store by each node. */
+  selectedId?: string | null;
   onSelect: (id: string | null) => void;
   recentNodeId?: string | null | undefined;
 }
 
-function DesignerNode({ node, store, selectedId, onSelect, recentNodeId }: FormWidgetProps & { node: WidgetNode }) {
-  const selected = selectedId === node.id;
+interface DesignerNodeProps {
+  store: DesignerStore;
+  nodeId: string;
+  recent: boolean;
+  recentNodeId?: string | null | undefined;
+  onSelect: (id: string | null) => void;
+}
+
+const DesignerNode = React.memo(function DesignerNode({ store, nodeId, recent, recentNodeId, onSelect }: DesignerNodeProps) {
+  const node = useDesignerSelector(store, (state) => findNode(state.json.widgetList, nodeId));
+  const selected = useDesignerSelector(store, (state) => state.selectedId === nodeId);
+  if (!node) return null;
   const definition = getWidgetDefinition(node.type);
   const { attributes, listeners, setNodeRef: setDragRef, transform } = useDraggable({ id: `node:${node.id}`, data: { kind: 'node', nodeId: node.id } });
   const { setNodeRef: setDropRef, isOver } = useDroppable({ id: `drop:${node.id}`, data: { kind: isContainer(node.type) ? 'container' : 'sibling', nodeId: node.id } });
@@ -26,7 +38,13 @@ function DesignerNode({ node, store, selectedId, onSelect, recentNodeId }: FormW
             {(node.widgetList ?? []).map((child, index, children) => (
               <React.Fragment key={child.id}>
                 <SiblingDropZone parentId={node.id} afterId={index > 0 ? children[index - 1]!.id : null} />
-                <DesignerNode node={child} store={store} selectedId={selectedId} onSelect={onSelect} recentNodeId={recentNodeId} />
+                <DesignerNode
+                  nodeId={child.id}
+                  store={store}
+                  recent={recentNodeId === child.id}
+                  recentNodeId={recentNodeId}
+                  onSelect={onSelect}
+                />
               </React.Fragment>
             ))}
             <SiblingDropZone parentId={node.id} afterId={node.widgetList?.at(-1)?.id ?? null} />
@@ -39,7 +57,7 @@ function DesignerNode({ node, store, selectedId, onSelect, recentNodeId }: FormW
       })();
   return (
     <div ref={(element) => { setDragRef(element); setDropRef(element); }} style={transform ? { transform: `translate3d(${transform.x}px, ${transform.y}px, 0)` } : undefined}
-      className={`exam-designer-node${selected ? ' is-selected' : ''}${recentNodeId === node.id ? ' is-just-added' : ''}`}
+      className={`exam-designer-node${selected ? ' is-selected' : ''}${recent ? ' is-just-added' : ''}`}
       data-node-id={node.id} data-drop-over={isOver || undefined}
       {...listeners} {...attributes}
       onClick={(event) => { event.stopPropagation(); onSelect(node.id); }}
@@ -51,7 +69,10 @@ function DesignerNode({ node, store, selectedId, onSelect, recentNodeId }: FormW
       {content}
     </div>
   );
-}
+}, (previous, next) => previous.store === next.store
+  && previous.nodeId === next.nodeId
+  && previous.recent === next.recent
+  && previous.onSelect === next.onSelect);
 
 function SiblingDropZone({ parentId, afterId }: { parentId: string; afterId: string | null }) {
   const { setNodeRef, isOver } = useDroppable({
@@ -61,11 +82,29 @@ function SiblingDropZone({ parentId, afterId }: { parentId: string; afterId: str
   return <div ref={setNodeRef} className="exam-designer-drop-gap" data-drop-over={isOver || undefined} aria-hidden="true" />;
 }
 
-export function FormWidget({ store, selectedId, onSelect, recentNodeId }: FormWidgetProps) {
-  const json = store.getJson();
+export function FormWidget({ store, onSelect, recentNodeId }: FormWidgetProps) {
+  const rootNodes = useDesignerSelector(store, (state) => state.json.widgetList);
   return (
     <main className="exam-form-widget" onClick={() => onSelect(null)}>
-      {json.widgetList.map((node) => <DesignerNode key={node.id} node={node} store={store} selectedId={selectedId} onSelect={onSelect} recentNodeId={recentNodeId} />)}
+      {rootNodes.map((node) => (
+        <DesignerNode
+          key={node.id}
+          nodeId={node.id}
+          store={store}
+          recent={recentNodeId === node.id}
+          recentNodeId={recentNodeId}
+          onSelect={onSelect}
+        />
+      ))}
     </main>
   );
+}
+
+function findNode(nodes: WidgetNode[], id: string): WidgetNode | null {
+  for (const node of nodes) {
+    if (node.id === id) return node;
+    const child = node.widgetList && findNode(node.widgetList, id);
+    if (child) return child;
+  }
+  return null;
 }

@@ -18,6 +18,59 @@ function clone<T>(value: T): T {
   return structuredClone(value);
 }
 
+function sameValue(left: JsonValue | undefined, right: JsonValue | undefined): boolean {
+  if (Object.is(left, right)) return true;
+  if (Array.isArray(left) && Array.isArray(right)) {
+    return left.length === right.length && left.every((item, index) => sameValue(item, right[index]));
+  }
+  if (left && right && typeof left === 'object' && typeof right === 'object') {
+    const leftRecord = left as Record<string, JsonValue>;
+    const rightRecord = right as Record<string, JsonValue>;
+    const leftKeys = Object.keys(leftRecord);
+    const rightKeys = Object.keys(rightRecord);
+    return leftKeys.length === rightKeys.length && leftKeys.every((key) => sameValue(leftRecord[key], rightRecord[key]));
+  }
+  return false;
+}
+
+function shareNodeReferences(previous: WidgetNode | undefined, next: WidgetNode): WidgetNode {
+  const previousChildren = previous?.widgetList;
+  const nextChildren = next.widgetList;
+  let children = nextChildren;
+  if (nextChildren) {
+    const previousById = new Map((previousChildren ?? []).map((child) => [child.id, child]));
+    const sharedChildren = nextChildren.map((child) => shareNodeReferences(previousById.get(child.id), child));
+    if (sharedChildren.length === (previousChildren?.length ?? 0)
+      && sharedChildren.every((child, index) => child === nextChildren[index])) {
+      children = previousChildren ?? nextChildren;
+    } else {
+      children = sharedChildren;
+    }
+  }
+  const options = previous && sameValue(previous.options, next.options) ? previous.options : next.options;
+  if (previous && previous.id === next.id && previous.type === next.type && options === previous.options && children === previousChildren) {
+    return previous;
+  }
+  return {
+    ...next,
+    options,
+    ...(children ? { widgetList: children } : {}),
+  };
+}
+
+function shareJsonReferences(previous: QuestionJson, next: QuestionJson): QuestionJson {
+  const widgetList = next.widgetList.map((node, index) => shareNodeReferences(previous.widgetList[index], node));
+  const sharedWidgetList = widgetList.length === previous.widgetList.length
+    && widgetList.every((node, index) => node === next.widgetList[index])
+    ? previous.widgetList
+    : widgetList;
+  const formConfig = sameValue(previous.formConfig as unknown as JsonValue, next.formConfig as unknown as JsonValue)
+    ? previous.formConfig
+    : next.formConfig;
+  if (sharedWidgetList === previous.widgetList && formConfig === previous.formConfig) return previous;
+  return { ...next, widgetList: sharedWidgetList, formConfig };
+}
+
 function newIdentifier(prefix: string): string {
   const random = globalThis.crypto?.getRandomValues
     ? Array.from(globalThis.crypto.getRandomValues(new Uint32Array(2)))
@@ -277,5 +330,9 @@ export function applyQuestionPatch(json: QuestionJson, patch: QuestionPatch): Pa
       moveWithin(next, op);
     }
   }
-  return { json: normalizeJson(next), patch: reconciled.patch, idMap: reconciled.idMap };
+  return {
+    json: shareJsonReferences(json, normalizeJson(next)),
+    patch: reconciled.patch,
+    idMap: reconciled.idMap,
+  };
 }
