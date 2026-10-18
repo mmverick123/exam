@@ -185,6 +185,12 @@
 .agent-plan-preview.risk-high { border-color: #ffd7a3; background: #fffaf0; }
 .agent-patch-preview > strong { color: #285fc6; }
 .agent-confirm-note { padding: 7px 8px; border-radius: 6px; background: #fff; color: #66758b !important; }
+.agent-change-groups { display: grid; gap: 6px; max-height: 110px; overflow: auto; margin: 8px 0; padding: 8px; border: 1px solid #e4e8f0; border-radius: 7px; }
+.agent-change-groups legend { padding: 0 4px; color: #5a6980; font-weight: 600; }
+.agent-change-groups > small { color: #8a95a5; }
+.agent-change-groups label { display: flex; align-items: center; gap: 6px; color: #53627a; }
+.agent-change-groups input { accent-color: #356ee6; }
+.agent-change-groups em { margin-left: auto; color: #a65b00; font-size: 10px; font-style: normal; }
 .agent-patch-preview p { color: #53627a; }
 .agent-patch-preview ol { max-height: 90px; overflow: auto; padding-left: 20px; color: #6d7889; }
 .agent-patch-preview > div { display: flex; gap: 6px; }
@@ -202,3 +208,5 @@
   .exam-widget-panel button { width: 100%; margin-right: 0; }
   .design-eyebrow, .design-version { display: none; }
 }
+
+.design-workspace.is-patch-preview .exam-question-designer { pointer-events: none; }

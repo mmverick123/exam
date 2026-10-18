@@ -20,7 +20,7 @@ export interface PlanResult {
   clarificationQuestion?: string;
 }
 export interface ConversationTurn { role: 'user' | 'assistant'; content: string; }
-export interface ProviderContext { adapter: ContractAdapter; outline: QuestionJson; message: string; history?: ConversationTurn[]; signal?: AbortSignal; nodeRefs?: AgentNodeRef[]; }
+export interface ProviderContext { adapter: ContractAdapter; outline: QuestionJson; message: string; history?: ConversationTurn[]; signal?: AbortSignal; nodeRefs?: AgentNodeRef[]; baseSnapshotHash?: string; }
 export interface ProviderUsage { inputTokens: number; outputTokens: number; }
 
 export interface AgentProvider {

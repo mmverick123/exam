@@ -72,6 +72,16 @@ describe('Agent state machine', () => {
     expect((result.json?.widgetList[0]?.widgetList?.[0]?.options.optionItems as Array<{ value: string }>).slice(0, 2).map((item) => item.value)).toEqual(['keep_a', 'keep_b']);
   });
 
+  it('echoes the source snapshot hash with plan and candidate events', async () => {
+    const events: Array<{ event: string; data: Record<string, unknown> }> = [];
+    const result = await runAgent({
+      message: '出一道关于光合作用的单选题', contractVersion: CONTRACT_VERSION, questionOutline: emptyOutline(), baseSnapshotHash: 'base-hash-1', onEvent: (event) => events.push(event),
+    }, new DeterministicProvider());
+    expect(result.state).toBe('Deliver');
+    expect(events.find((event) => event.event === 'plan')?.data.baseSnapshotHash).toBe('base-hash-1');
+    expect(events.find((event) => event.event === 'patch')?.data.baseSnapshotHash).toBe('base-hash-1');
+  });
+
   it('repairs a modification whose result has a blocking validation warning', async () => {
     const outline = emptyOutline();
     outline.widgetList[0]!.widgetList!.push({ type: 'single-choice', id: 'choice_1', options: { name: 'choice', optionItems: [{ label: 'A', value: 'a' }, { label: 'B', value: 'b' }] } });

@@ -12,7 +12,7 @@ import { buildNodeRefs, summarizeRefs, validatePatchScope, validatePlanScope } f
 import { defaultProvider, type AgentProvider, type ConversationTurn, type IntentResult, type PlanResult, type ProviderUsage } from '../providers';
 
 export type AgentState = 'Intent' | 'Plan' | 'Generate' | 'Validate' | 'Repair' | 'Degrade' | 'Deliver' | 'Reject';
-export interface AgentRequest { sessionId?: string; message: string; contractVersion: string; questionOutline: QuestionJson; signal?: AbortSignal; history?: ConversationTurn[]; onEvent?: (event: AgentEvent) => void; }
+export interface AgentRequest { sessionId?: string; message: string; contractVersion: string; questionOutline: QuestionJson; baseSnapshotHash?: string; signal?: AbortSignal; history?: ConversationTurn[]; onEvent?: (event: AgentEvent) => void; }
 export interface AgentEvent { event: 'plan' | 'message' | 'patch' | 'validation' | 'done' | 'error'; data: Record<string, unknown>; }
 export interface AgentResult {
   state: 'Deliver' | 'Degrade' | 'Reject';
@@ -60,7 +60,8 @@ export async function runAgent(
   }
 
   assertNotAborted(request.signal);
-  const context = { adapter, outline, message: request.message, history: request.history, signal: request.signal, nodeRefs: buildNodeRefs(outline) };
+  const context = { adapter, outline, message: request.message, history: request.history, signal: request.signal, nodeRefs: buildNodeRefs(outline), baseSnapshotHash: request.baseSnapshotHash };
+  const snapshotMetadata = request.baseSnapshotHash === undefined ? {} : { baseSnapshotHash: request.baseSnapshotHash };
   const intent = await provider.intent(context);
   assertNotAborted(request.signal);
   if (intent.kind === 'irrelevant') {
@@ -71,7 +72,7 @@ export async function runAgent(
   const plan = await provider.plan(context);
   assertNotAborted(request.signal);
   const targetSet = new Set(plan.targetIds ?? []);
-  emit(events, 'plan', { steps: plan.steps, targets: summarizeRefs(outline).filter((ref) => targetSet.has(ref.id)), targetIds: plan.targetIds ?? [], parentIds: plan.parentIds ?? [], excludedIds: plan.excludedIds ?? [], assumptions: plan.assumptions ?? [], acceptanceCriteria: plan.acceptanceCriteria ?? [], risk: plan.risk ?? 'low', requiresClarification: plan.requiresClarification ?? false, clarificationQuestion: plan.clarificationQuestion }, request.onEvent);
+  emit(events, 'plan', { steps: plan.steps, targets: summarizeRefs(outline).filter((ref) => targetSet.has(ref.id)), targetIds: plan.targetIds ?? [], parentIds: plan.parentIds ?? [], excludedIds: plan.excludedIds ?? [], assumptions: plan.assumptions ?? [], acceptanceCriteria: plan.acceptanceCriteria ?? [], risk: plan.risk ?? 'low', ...snapshotMetadata, requiresClarification: plan.requiresClarification ?? false, clarificationQuestion: plan.clarificationQuestion }, request.onEvent);
   if (plan.requiresClarification) {
     const message = plan.clarificationQuestion ?? '当前请求的目标组件不够明确，请补充具体题目或组件。';
     emit(events, 'error', { code: 'CLARIFICATION_REQUIRED', message }, request.onEvent);
@@ -107,7 +108,7 @@ export async function runAgent(
       });
       const blockingIssues = [...validation.errors, ...newBlockingWarnings];
       if (scopeErrors.length === 0 && blockingIssues.length === 0) {
-        emit(events, 'patch', { ops: patch.ops, summary: patch.summary }, request.onEvent);
+        emit(events, 'patch', { ops: patch.ops, summary: patch.summary, ...snapshotMetadata }, request.onEvent);
         emit(events, 'validation', { valid: true, warnings: validation.warnings }, request.onEvent);
         const usage = providerUsage(provider);
         emit(events, 'done', { tokens: usage.inputTokens + usage.outputTokens, inputTokens: usage.inputTokens, outputTokens: usage.outputTokens, elapsed: Date.now() - startedAt, repairCount }, request.onEvent);
